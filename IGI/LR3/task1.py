@@ -3,6 +3,7 @@ import math
 def solve_task1():
     """ Solve the 1-st task of the laboratory work.
     """
+
     task1_data = get_task1_input()
     solution = decompose_log(task1_data[0], task1_data[1])
     print_task1_solution(solution)
@@ -30,6 +31,7 @@ def decompose_log(x: float, eps: float = 1e-3) -> tuple:
 def get_task1_input() -> tuple:
     """ Get input data for the 1-st task. Return the tuple { x, epsilon }.
     """
+    
     x = 0
     epsilon = 0
     while True:

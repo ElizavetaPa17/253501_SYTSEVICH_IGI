@@ -1,12 +1,25 @@
 import task1
 import task2
+import task3
+import task4
+import task5
 import utility
 
 task_solver = { 1: task1.solve_task1,
-                2: task2.solve_task2 }
+                2: task2.solve_task2,
+                3: task3.solve_task3,
+                4: task4.solve_task4,
+                5: task5.solve_task5 }
 
 utility.print_welcome_msg()
-task_number = utility.get_task_number()
-utility.print_task_info(task_number)
 
-task_solver[task_number]()
+while True:
+    task_number = utility.get_task_number()
+    if (task_number == 0):
+        utility.print_quit_msg()
+        break
+
+    utility.print_task_info(task_number)
+
+    task_solver[task_number]()
+    print(utility.DELIMETER)
