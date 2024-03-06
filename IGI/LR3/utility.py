@@ -1,4 +1,6 @@
 import datetime
+import time
+import random
 
 AUTHOR_LAST_NAME  = "Sytsevich"
 AUTHOR_FIRST_NAME = "Elizaveta"
@@ -67,6 +69,9 @@ def print_task_info(task_number: int):
 
 def get_numbers_until(end: int) -> list:
     """ Get input data for the 2-nd task. Return list of the numbers until getting end.
+
+    Keyword arguments:
+    end -- identificator of the input end
     """
 
     numbers = []
@@ -92,3 +97,88 @@ def print_quit_msg():
     """
 
     print("Thanks for your attention. Good bye!")
+
+
+def decorate_funciton_call(function):
+    """ Decorate the function: print its call time and the time of working.
+
+    Keyword arguments:
+    function -- function to decorate
+    """
+
+    def descripted_function(*args, **kwargs):
+        print(DELIMETER + 
+              f"The function {function.__name__} was invoked at {datetime.datetime.now()}.\n"
+              + DELIMETER)
+
+        start = time.time()
+        result = function(*args, **kwargs)
+        print(DELIMETER +
+              f"The function operation time is {time.time() - start}s.\n")
+
+        return result
+    
+    return descripted_function
+
+
+def get_user_sequence_choice() -> str:
+    """ Get user choice: does he want to enter the sequence or generate it randomly.
+        Return this choise: r(andom) or e(nter)
+    """
+
+    while True:
+        char = input("Do you want to generate the sequence or enter it? (D)egree, (R)andom or (E)nter: ")
+        if (char == "E" or char == "R" or char == "D"):
+            return char
+
+
+def get_degree_sequence_until():
+    """ Generate the sequence with given conditions, print it and return.
+
+    Keyword arguments:
+    end -- the end of the sequense
+    degree -- the degree for construction
+    """
+    print("Let's generate the sequence [0, size-1] and transform it with degree.")
+
+    size = 0
+    while size <= 0:
+        size = get_integer_with_description("Enter the positive size of the sequence: ")
+
+    degree = 0
+    while degree <= 0:
+        degree = get_integer_with_description("Enter the positive degree of the sequence: ")
+
+    for number in range(size):
+        yield number**degree
+
+
+def get_integer_with_description(description: str) -> int:
+    """ Get integer and returns it.
+    """
+
+    number = 0
+    while True:
+        try:
+            number = int(input(description))
+            break
+        except:
+            print("Please, enter only integer numbers.")
+
+    return number
+
+
+def get_random_sequence_interactive() -> list:
+    """ Generate the random sequence with given size, print it and return.
+    """
+
+    size = 0
+    while size <= 0:
+        size = get_integer_with_description("Enter the positive size of the sequence: ")
+    
+    random_list = list(random.randint(-1e2, 1e2) for i in range(size))
+    
+    print(f"The generated sequence is: {random_list}")
+    return random_list
+
+

@@ -59,6 +59,9 @@ def print_task1_solution(solution: tuple):
     +-----------+---------+---------+--------------+---------+
     |     x     |    n    |   F(x)  |  Math(F(x))  |   eps   |
     +-----------+---------+---------+--------------+---------+
+
+    Keyword arguments:
+    solution -- the tuple of (x, n, approximation_value, exact_answer, epsilon)
     """
 
     print("+-----------+---------+-------------+--------------+-----------+\n"

@@ -21,6 +21,9 @@ def get_split_string_input():
 
 def get_title_word_count(str_list: list) -> int:
     """ Determine the count of words which starts with the upper character and return it.
+
+    Keyword arguments:
+    str_list -- the list of strings
     """
 
     count = 0
@@ -35,7 +38,7 @@ def find_the_longest_startswith_I(str_list: list) -> str:
     """ Find the longest string starts with character 'I' and return it.
     """
 
-    answer = ""
+    answer = None
     for word in str_list:
         if word.startswith('I') and len(word) > len(answer):
             answer = word
@@ -54,7 +57,16 @@ def get_duplicate_words(str_list: list) -> str:
 
     return duplicate_set
 
-def print_task4_solution(title_word_count: int, find_the_longest_startswith_I: str, duplicate_word_set: set):
+def print_task4_solution(title_word_count: int, the_longest_startswith_I: str, duplicate_word_set: set):
+    """ Check the input and print the solution of the 4-th task
+    """
+
+    if the_longest_startswith_I is None:
+        the_longest_startswith_I = "- Not found -"
+
+    if len(duplicate_word_set) == 0:
+        duplicate_word_set = "- Not found -"
+
     print(f"The count of the title words: {title_word_count}\n"
-          f"The longest word starts with 'I': {find_the_longest_startswith_I}\n"
+          f"The longest word starts with 'I': {the_longest_startswith_I}\n"
           f"All the duplicate words: {duplicate_word_set}")
