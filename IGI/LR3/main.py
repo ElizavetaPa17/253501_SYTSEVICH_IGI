@@ -9,7 +9,7 @@ import task5
 task_solver = { 1: task1.solve_task1,
                 2: task2.solve_task2,
                 3: task3.solve_task3,
-                4: utility.decorate_funciton_call(task4.solve_task4),      # use decorator to descript the function
+                4: task4.solve_task4,      # use decorator to descript the function
                 5: task5.solve_task5 }
 
 utility.print_welcome_msg()

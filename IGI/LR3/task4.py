@@ -1,3 +1,6 @@
+from utility import decorate_funciton_call
+
+@decorate_funciton_call
 def solve_task4():
     """ Solve the 4-th task of the laboratory work.
     """
