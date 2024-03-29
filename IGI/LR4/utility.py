@@ -1,5 +1,6 @@
 import datetime
 import time
+import zipfile
 
 AUTHOR_LAST_NAME  = "Sytsevich"
 AUTHOR_FIRST_NAME = "Elizaveta"
@@ -87,3 +88,48 @@ def get_float() -> float:
             print("Please, enter float number.")
 
     return number
+
+
+def read_from_file(filename) -> str:
+    """ Read all content from the file and return it as a string
+        Parameters:
+        filename - name of the source file
+    """
+
+    file_content = ""
+
+    try:
+        with open(filename, "r") as file:
+            file_content = file.read()
+    except OSError as err:
+        print("File error: ", err)
+        raise
+
+    return file_content
+
+
+def write_to_file(filename, text):
+    """ Write text to file.
+    """
+
+    try:
+        with open(filename, "w") as file:
+            file.write(text)
+    except OSError as err:
+        print("File error: ", err)
+        raise
+
+
+def make_verbose_arhieve(arhievename, file_name):
+    """ Create arhieve of "filename" file and print information about it to console.
+    """
+    with zipfile.ZipFile(arhievename, "w", compression=zipfile.ZIP_STORED) as zip_file:
+        zip_file.write(file_name)
+        zip_info = zip_file.infolist()[0]
+
+        print("Информация об архиве {arhievename}:\n" \
+              f"Название файла: {zip_info.filename}\n" \
+              f"Дата изменения: {zip_info.date_time}\n" \
+              f"Тип сжатия: {zip_info.compress_type}\n" \
+              f"Размер после сжатия: {zip_info.compress_size}\n" \
+              f"Размер до сжатия: {zip_info.file_size}\n")

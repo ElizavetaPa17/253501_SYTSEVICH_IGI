@@ -1,9 +1,12 @@
 import utility
 import task1
-import pickle
+import task2
+import task3
 
 # ДОБАВЬ СПИСКИ НЕУСПЕВАЮЩИХ И ОТЛИЧНИКОВ И ПРОЦЕНТ КАКОЙ-ТО ТАМ
-task_solver = { 1: task1.solve_task1 }
+task_solver = { 1: task1.solve_task1,
+                2: task2.solve_task2,
+                3: task3.solve_task3 }
 
 utility.print_welcome_msg()
 
