@@ -107,9 +107,21 @@ def print_sorted_students_by_mark(school_class):
     """
     sorted_students = school_class.get_sorted_students_by_mark()
 
+    print("Good students:")
     print("%-20s %3s" % ("Student_name", "average_mark"))
-    for student in sorted_students:
-        print("%-20s %3f" % (student.name, student.average_mark))
+    i = 0
+    while i < len(sorted_students):
+        if sorted_students[i].average_mark < 7:
+            break
+        print("%-20s %3f" % (sorted_students[i].name, sorted_students[i].average_mark))
+        i += 1
+
+    if (i != len(sorted_students)):
+        print("Bad students:")
+        print("%-20s %3s" % ("Student_name", "average_mark"))
+        while i < len(sorted_students):
+            print("%-20s %3f" % (sorted_students[i].name, sorted_students[i].average_mark))
+            i += 1
 
 
 def update_student_by_name(school_class):
@@ -136,7 +148,7 @@ def serialize_school(school_class):
             file = open(filename, "w")
 
             writer = csv.writer(file, quoting=csv.QUOTE_ALL)
-            writer.writerow(school_class.name)
+            writer.writerow(school_class.class_name)
             writer.writerow(["Student name", "average mark"])
 
             for student in school_class.students:

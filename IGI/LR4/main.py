@@ -2,11 +2,15 @@ import utility
 import task1
 import task2
 import task3
+import task4
+import task5
 
 # ДОБАВЬ СПИСКИ НЕУСПЕВАЮЩИХ И ОТЛИЧНИКОВ И ПРОЦЕНТ КАКОЙ-ТО ТАМ
 task_solver = { 1: task1.solve_task1,
                 2: task2.solve_task2,
-                3: task3.solve_task3 }
+                3: task3.solve_task3,
+                4: task4.solve_task4,
+                5: task5.solve_task5 }
 
 utility.print_welcome_msg()
 

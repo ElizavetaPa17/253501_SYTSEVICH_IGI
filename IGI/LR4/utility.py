@@ -127,9 +127,9 @@ def make_verbose_arhieve(arhievename, file_name):
         zip_file.write(file_name)
         zip_info = zip_file.infolist()[0]
 
-        print("Информация об архиве {arhievename}:\n" \
-              f"Название файла: {zip_info.filename}\n" \
-              f"Дата изменения: {zip_info.date_time}\n" \
-              f"Тип сжатия: {zip_info.compress_type}\n" \
-              f"Размер после сжатия: {zip_info.compress_size}\n" \
-              f"Размер до сжатия: {zip_info.file_size}\n")
+        print(f"Information about {arhievename}:\n" \
+              f"File origin name: {zip_info.filename}\n" \
+              f"Touch date: {zip_info.date_time}\n" \
+              f"Compress type: {zip_info.compress_type}\n" \
+              f"Size after compress: {zip_info.compress_size}\n" \
+              f"Size before compress: {zip_info.file_size}\n")

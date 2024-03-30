@@ -16,12 +16,14 @@ def solve_task2():
             dst_content = utility.read_from_file(filename_dst)
             answer = analize_text(dst_content)
             utility.write_to_file(filename_src, answer)
+
+            print(utility.DELIMETER)
             utility.make_verbose_arhieve(arhievename, filename_src)
 
             return
         except OSError as err:
             continue
-
+    
 
 def analize_text(text) -> str:
     """ Manage the text analysis.
