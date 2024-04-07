@@ -51,9 +51,13 @@ def get_data_from_file(filename : str):
     """ Get values from file using module pickle.
     """
 
-    file = open(filename, "rb")
-    school_class = pickle.load(file)
-    file.close()
+    try:
+        file = open(filename, "rb")
+        school_class = pickle.load(file)
+    except OSError as ex:
+        print("File error: ", ex)
+    finally:
+        file.close()
 
     return school_class
 
@@ -159,9 +163,9 @@ def serialize_school(school_class):
     except OSError as err:
         print("File error: ", err)
         return
-
+    finally: 
+        file.close()
     print(f"Successfull serialization to {filename}")
-    file.close()
 
 
 class SchoolClass:
@@ -169,7 +173,7 @@ class SchoolClass:
     """
 
     def __init__(self, class_name : str):
-        """ The constructor of the School class.
+        """ The  of the School class.
             Parameters:
             class_name - the name of the class (like "9A")
         """

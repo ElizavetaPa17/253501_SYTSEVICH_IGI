@@ -2,8 +2,8 @@
 %%Creator: Tk Canvas Widget
 %%For: elizaveta,,,
 %%Title: Window .!canvas
-%%CreationDate: Sat Mar 30 15:04:47 2024
-%%BoundingBox: -143 59 756 733
+%%CreationDate: Tue Apr  2 15:23:16 2024
+%%BoundingBox: -53 92 666 700
 %%Pages: 1
 %%DocumentData: Clean7Bit
 %%Orientation: Portrait
@@ -81,52 +81,52 @@ baselineSampler 0 196 put
 save
 306.0 396.0 translate
 0.75 0.75 scale
-2 -449 translate
--601 898 moveto 597 898 lineto 597 0 lineto -601 0 lineto closepath clip newpath
+-463 -404 translate
+-16 808 moveto 942 808 lineto 942 0 lineto -16 0 lineto closepath clip newpath
 gsave
 grestore
 gsave
-0 447 moveto
-0 447 lineto
--228.047017231801 344.557050356413 lineto
--103.047017231801 344.557050356413 lineto
-21.9529827681987 344.557050356413 lineto
-250 447 lineto
-0 447 lineto
-0 447 lineto
+0 19 moveto
+0 19 lineto
+290.837012152993 545.666666666667 lineto
+458.75183940983 545.666666666667 lineto
+626.666666666667 545.666666666667 lineto
+335.829654513674 19 lineto
+0 19 lineto
+0 19 lineto
 1 setlinecap
 1 setlinejoin
 5 setlinewidth
 [] 0 setdash
-0.000 0.000 1.000 setrgbcolor AdjustColor
+0.000 0.502 0.000 setrgbcolor AdjustColor
 stroke
 grestore
 gsave
 /Ubuntu findfont 17 scalefont ISOEncode setfont
-0.000 0.000 1.000 setrgbcolor AdjustColor
-0 -104.047017231801 344.557050356413 [
+0.000 0.502 0.000 setrgbcolor AdjustColor
+0 457.75183940983 545.666666666667 [
 [(rhomb)]
 ] 33 -0 1 0 false DrawText
 grestore
 gsave
 grestore
 gsave
-0 447 moveto
--9 452 lineto
--7 447 lineto
--9 442 lineto
-0 447 lineto
-0.000 0.000 1.000 setrgbcolor AdjustColor
+0 19 moveto
+-9 24 lineto
+-7 19 lineto
+-9 14 lineto
+0 19 lineto
+0.000 0.502 0.000 setrgbcolor AdjustColor
 eofill
-0 447 moveto
--9 452 lineto
--7 447 lineto
--9 442 lineto
-0 447 lineto
+0 19 moveto
+-9 24 lineto
+-7 19 lineto
+-9 14 lineto
+0 19 lineto
 1 setlinejoin 1 setlinecap
 1 setlinewidth
 [] 0 setdash
-0.000 0.000 1.000 setrgbcolor AdjustColor
+0.000 0.502 0.000 setrgbcolor AdjustColor
 stroke
 grestore
 restore showpage

@@ -14,7 +14,6 @@ DEVELOPMENT_DATE  = datetime.date(2024, 3, 25)
 
 DELIMETER = '='*80 + '\n'
 
-
 def print_welcome_msg():
     """ Print general information about the author.
 
