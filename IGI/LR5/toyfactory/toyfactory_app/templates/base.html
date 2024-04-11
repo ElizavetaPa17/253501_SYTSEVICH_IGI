@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        {% block title %}<title>Toy Factory</title>{% endblock %}
+    </head>
+    <body>
+        <li><a href="{% url 'index' %}">Домашняя страница</a></li>
+        <li><a href="{% url 'toys' %}">Игрушки</a></li>
+        <li><a href="{% url 'termines' %}">Словарь</a></li>
+        <li><a href="{% url 'employees' %}">Сотрудники</a></li>
+        <li><a href="{% url 'policy' %}">Политика конфиденциальности</a></li>
+        <li><a href="{% url 'vacations' %}">Вакансии</a></li>
+        <li><a href="{% url 'reviews' %}">Отзывы</a></li>
+        <li><a href="{% url 'promocodes' %}">Промокоды</a></li>
+        <li><a href="{% url 'about' %}">О компании</a></li>
+        {% block content %} {% endblock %}
+    </body>
+</html>
