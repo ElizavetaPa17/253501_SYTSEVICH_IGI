@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Игрушки</h1>
+    <div id="types">
+        <h3>Виды</h3>
+        <ul>
+            <li {% if not type %}class="selected"{% endif %}>
+                <a href="{% url 'toys' %}">Все</a>
+            </li>
+            {% for type in toy_types %}
+                <li {% if type.slug == toy_type.slug %} class="selected"{% endif %}>
+                    <a href="{{ c.get_absolute_url }}">{{ type.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="toys_main" class="toys_list">
+        <h1>{% if toys %}{{toy.name }}{% else %}Игрушки{% endif %}</h1>
+        {% for toy in toys %}
+            <div class="item">
+                <a href="{{ toys.get_absolute_url }}">
+                </a>
+                <a href="{{ toy.get_absolute_url }}">{{ toy.name }}</a><br>
+                ${{ toy.price }}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

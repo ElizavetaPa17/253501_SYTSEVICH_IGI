@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Новости</h1>
+
+    {% if news_list %}
+    <ul>
+        {% for news in news_list %}
+            <li>
+                <a href="{% url 'news-detail' news.pk %}">{{news.title}}</a>
+                <img src={{news.image}}>
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>Список Новостей пуст.</p>
+    {% endif %}
+{% endblock %}

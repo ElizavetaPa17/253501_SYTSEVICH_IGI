@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Авторизация Клиента</h1>
+    {% if form.errors %}
+        <p>
+            Ваш пароль или имя ошибочны.
+            Попытайтесь снова.
+        </p>
+    {% else %}
+        <p>Авторизация клиента: </p>
+    {% endif %}
+    <div class="login-form">
+        <form action="" method="POST">
+            {{ client_form }}
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}"/>
+            <p><input type="submit" value="Авторизоваться"></p>
+        </form>
+        <a href="{% url 'register_client' %}">Зарегистрироваться</a>
+        <a href="{% url 'login_employee' %}">Войти как сотрудник</a>
+    </div>
+{% endblock %}

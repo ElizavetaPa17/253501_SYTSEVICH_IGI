@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+    <p>Name: {{employee.name}}</p>
+    <p>{{employee.image}}</p>
+    <img src={{employee.image}}>
+    <p>Phone: {{employee.phone}}</p>
+    <p>Email: {{employee.email}}</p>
+    <p>Birthday: {{employee.birthday}}</p>
+{% endblock %}

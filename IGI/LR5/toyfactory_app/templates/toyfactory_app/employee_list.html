@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Сотрудники</h1>
+
+    {% if employee_list %}
+    <ul>
+        {% for employee in employee_list %}
+            <li>
+                <a href="{% url 'employee-detail' employee.pk %}">{{employee.name}}</a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>Список сотрудников пуст.</p>
+    {% endif %}
+{% endblock %}

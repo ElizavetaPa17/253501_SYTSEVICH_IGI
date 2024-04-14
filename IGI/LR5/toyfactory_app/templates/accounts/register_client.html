@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+    <form action="" method="POST">
+        {% csrf_token %}
+        <table>
+            {{client_form}}
+        </table>
+        <input type="submit" value="Зарегистрироваться">
+    </form>
+    <a href="{% url 'login_client' %}">Уже есть аккаунт</a>
+{% endblock %} 
