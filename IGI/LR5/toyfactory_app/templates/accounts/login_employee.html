@@ -19,4 +19,9 @@
         <a href="{% url 'register_client' %}">Зарегистрироваться</a>
         <a href="{% url 'login_client' %}">Войти как клиент</a>
     </div>
+    {% if error %}
+        <p>
+            {{ error }}
+        </p>
+    {% endif %}
 {% endblock %}

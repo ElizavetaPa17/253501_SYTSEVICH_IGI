@@ -116,7 +116,13 @@ USE_TZ = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
+AUTH_USER_MODEL = "toyfactory_app.User"
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'toyfactory_app.backend.MyBackend',
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/

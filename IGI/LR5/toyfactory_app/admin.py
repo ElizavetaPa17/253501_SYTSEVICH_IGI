@@ -8,7 +8,7 @@ class FeedbackAdmin(admin.ModelAdmin):
 
 
 class EmployeeAdmin(admin.ModelAdmin):
-    add_fieldsets = ('user.first_name', 'last_name', 'email', 'phone', 'image', 'birthday')
+    add_fieldsets = ('first_name', 'last_name', 'email', 'phone', 'image', 'birthday')
     list_filter = ('birthday',)
 
 
@@ -21,15 +21,10 @@ class ToyAdmin(admin.ModelAdmin):
     list_filter = ('price', 'toy_type', 'produced')
 
 
-class OrderInlines(admin.TabularInline):
-    model = Order
-
-
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
-    add_fieldsets = ('username', 'email', 'phone', 'town', 'address', 'employee')
-    list_filter = ('town', 'employee')
-    inlines = [OrderInlines]
+    add_fieldsets = ('first_name', 'last_name' 'email', 'phone', 'town', 'address')
+    list_filter = ('town',)
 
 
 class PromocodeAdmin(admin.ModelAdmin):
@@ -38,8 +33,8 @@ class PromocodeAdmin(admin.ModelAdmin):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('order_date', 'finish_date', 'client', 'toy', 'toy_count')
-    list_filter = ('order_date', 'finish_date', 'client', 'toy', 'toy_count', 'promocodes')
+    list_display = ('order_date', 'finish_date', 'toy', 'toy_count')
+    list_filter = ('order_date', 'finish_date', 'toy', 'toy_count', 'promocodes')
 
 
 admin.site.register(Company)
