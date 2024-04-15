@@ -48,7 +48,6 @@ class Client(User):
     def save(self, *args, **kwargs):
         if not self.pk:
             self.role = CLIENT
-            print('here')
         return super().save(*args, **kwargs)
 
 

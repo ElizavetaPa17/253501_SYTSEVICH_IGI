@@ -110,19 +110,18 @@ def login_employee(request):
                                                             'error' : error})
 
 @login_required
-def update_client_profile(request):
+def update_profile_view(request, pk):
+    print(request.method)
     if request.method == "POST":
-        client_form = ClientUpdateForm(request.POST, instance=request.user)
-        if client_form.is_valid():
-            client = client_form.save(commit=False)
-            client.username = client_form.cleaned_data['username']
-            client.save()
-            client_group = Group.objects.get(name='Client')
-            client_group.user_set.add(client)
+        profile_form = ProfileUpdateForm(request.POST, instance=request.user)
+        print(profile_form.is_valid())
+        if profile_form.is_valid():
+            profile_form.save()
             return HttpResponseRedirect(reverse('login_client'))
-    client_form = ClientUpdateForm()
-    return render(request, 'account/update_client')
-
+        else:
+            print(profile_form.errors)
+    profile_form = ProfileUpdateForm(instance=request.user)
+    return render(request, 'accounts/update_profile.html', {'profile_form' :  profile_form })
 
 
 @login_required
@@ -133,10 +132,7 @@ def logout_view(request):
 
 @login_required
 def profile_view(request, pk):
-    if int(request.user.role) == CLIENT:
-        return render(request, 'accounts/client_profile.html')
-    else:
-        return render(request, 'accounts/employee_profile.html')
+    return render(request, 'accounts/profile.html', {'user' : request.user})
 
 
 def toys_list(request, toy_type_slug=None):

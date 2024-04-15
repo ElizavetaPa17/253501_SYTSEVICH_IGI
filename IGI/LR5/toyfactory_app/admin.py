@@ -8,9 +8,9 @@ class FeedbackAdmin(admin.ModelAdmin):
 
 
 class EmployeeAdmin(admin.ModelAdmin):
-    add_fieldsets = ('first_name', 'last_name', 'email', 'phone', 'image', 'birthday')
-    list_filter = ('birthday',)
-
+    add_fieldsets = ('role', 'first_name', 'last_name', 'email', 'phone', 'address', 'birthday')
+    list_filter = ('birthday', 'town')
+ 
 
 class ToyTypeAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name", )}
@@ -23,8 +23,8 @@ class ToyAdmin(admin.ModelAdmin):
 
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
-    add_fieldsets = ('first_name', 'last_name' 'email', 'phone', 'town', 'address')
-    list_filter = ('town',)
+    add_fieldsets = ('role', 'first_name', 'last_name', 'email', 'phone', 'address', 'birthday')
+    list_filter = ('birthday', 'town',)
 
 
 class PromocodeAdmin(admin.ModelAdmin):

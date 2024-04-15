@@ -15,17 +15,15 @@ class ClientRegistrationForm(UserCreationForm):
         widget=forms.TextInput()
     )
 
-    email = forms.CharField(
-        label='Почта',
-        widget=forms.TextInput()
-    )
-
     last_name = forms.CharField(
         label='Фамилия',
         widget=forms.TextInput()
     )
 
-    birthday = forms.DateField()
+    email = forms.CharField(
+        label='Почта',
+        widget=forms.TextInput()
+    )
 
     password1 = forms.CharField(
         label='Пароль',
@@ -94,14 +92,26 @@ class ClientLoginForm(forms.Form):
         fields = ('first_name', 'last_name', 'password1')
 
 
-class ClientUpdateForm(forms.Form):
+class ProfileUpdateForm(forms.ModelForm):
     phone = forms.CharField(label='Телефон', widget=forms.TextInput)
     town = forms.CharField(label='Город', widget=forms.TextInput)
     address = forms.CharField(label='Адрес', widget=forms.TextInput)
 
+    password1 = forms.CharField(
+        label='Пароль',
+        strip=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"})
+    )
+
+    password2 = forms.CharField(
+        label='Подтверждение пароля',
+        strip=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"})
+    )
+
     class Meta:
-        model = Client
-        fields = ('email', 'phone', 'town', 'address', 'password1', 'password2')
+        model = User
+        fields = ('phone', 'town', 'address', 'password1', 'password2')
 
     def clean_password2(self):
         clean_data = self.cleaned_data
@@ -111,17 +121,9 @@ class ClientUpdateForm(forms.Form):
 
     def clean_phone(self):
         phone = self.cleaned_data['phone']
-        if phone and not re.match(r"^\\+?[1-9][0-9]{7,14}$", phone):
+        if phone and not re.match(r"^\+?[1-9][0-9]{7,14}$", phone):
             raise forms.ValidationError('Некорректный формат номера')
-        elif phone and User.objects.filter(email=email).count():
-            raise forms.ValidationError("Данный номер уже в использовании.")
         return phone
-
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if email and User.objects.filter(email=email).count():
-            raise forms.ValidationError("Данная почта уже в использовании.")
-        return email
 
 class EmployeeLoginForm(forms.Form):
     first_name = forms.CharField(

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div>
+            <p>
+                Телефон: {{profile_form.phone}}
+            </p>
+            <p>
+                Город: {{profile_form.town}}
+            </p>
+            <p>
+                Адрес: {{profile_form.address}}
+            </p>
+            <p>
+                Пароль: {{profile_form.password1}}
+            </p>
+            <p>
+                Подтверждение пароля: {{profile_form.password2}}
+            </p>
+        </div>
+        <button type="submit" >Сохранить</button>
+    </form>
+{% endblock %}
