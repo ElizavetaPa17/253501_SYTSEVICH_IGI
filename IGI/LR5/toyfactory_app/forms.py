@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import RegexValidator
 import re
+from datetime import date
 from .models import *
 
 class ClientRegistrationForm(UserCreationForm):
@@ -49,7 +50,7 @@ class ClientRegistrationForm(UserCreationForm):
 
     def clean_phone(self):
         phone = self.cleaned_data['phone']
-        if phone and not re.match(r"^\+?[0-9]{7,14}$", phone):
+        if phone and not re.match(r"^\+[\d]{3}\s*\([\d]{2}\)\s*[\d]{3}-[\d]{2}-[\d]{2}$", phone):
             raise forms.ValidationError('Некорректный формат номера')
         elif phone and Client.objects.filter(phone=phone).count():
             raise forms.ValidationError("Данный номер уже в использовании.")
@@ -60,6 +61,14 @@ class ClientRegistrationForm(UserCreationForm):
         if email and User.objects.filter(email=email).count():
             raise forms.ValidationError("Данная почта уже в использовании.")
         return email
+
+    def clean_birthday(self):
+        birthday = self.cleaned_data.get('birthday')
+        today = date.today()
+        if birthday and (today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))) >= 18:
+            return birthday
+        else:
+            raise forms.ValidationError("Вы должны быть старше 18 лет.")
 
     def clean_username(self):
         first_name = self.cleaned_data['first_name']
@@ -97,6 +106,8 @@ class ProfileUpdateForm(forms.ModelForm):
     town = forms.CharField(label='Город', widget=forms.TextInput)
     address = forms.CharField(label='Адрес', widget=forms.TextInput)
 
+    image = forms.ImageField(label='Фото')
+
     password1 = forms.CharField(
         label='Пароль',
         strip=False,
@@ -111,7 +122,7 @@ class ProfileUpdateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('phone', 'town', 'address', 'password1', 'password2')
+        fields = ('phone', 'town', 'address', 'image', 'password1', 'password2')
 
     def clean_password2(self):
         clean_data = self.cleaned_data
@@ -121,7 +132,7 @@ class ProfileUpdateForm(forms.ModelForm):
 
     def clean_phone(self):
         phone = self.cleaned_data['phone']
-        if phone and not re.match(r"^\+?[1-9][0-9]{7,14}$", phone):
+        if phone and not re.match(r"^\+[\d]{3}\s*\([\d]{2}\)\s*[\d]{3}-[\d]{2}-[\d]{2}$", phone):
             raise forms.ValidationError('Некорректный формат номера')
         return phone
 

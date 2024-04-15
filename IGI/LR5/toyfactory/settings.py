@@ -116,6 +116,7 @@ USE_TZ = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
 MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
 AUTH_USER_MODEL = "toyfactory_app.User"
 

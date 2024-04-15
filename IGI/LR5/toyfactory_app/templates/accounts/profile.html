@@ -30,6 +30,8 @@
     <p>
         День рождения: {{user.birthday}}
     </p>
+    <p>Фото:</p>
+    <img src="{{ user.image.url }}">
     <a href="{% url 'update_profile' user.pk %}">Редактировать профиль</a>
     <a href="{% url 'logout'}">Выйти</a>
 {% endblock %}

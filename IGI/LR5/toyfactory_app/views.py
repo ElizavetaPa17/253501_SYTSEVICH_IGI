@@ -13,18 +13,8 @@ from .constants import *
 def index(request):
     return render(request, 'index.html')
 
-
-class NewsListView(generic.ListView):
-    model = News
-
-    def get_context_data(self, **kwargs):
-        context = super(NewsListView, self).get_context_data(**kwargs)
-        return context
-
-
-class NewsDetailView(generic.DetailView):
-    model = News
-
+def news_list_view(request):
+    return render(request, 'news/news_list.html')
 
 def toys(request):
     return render(request, 'toys.html')
@@ -55,6 +45,7 @@ def termines(request):
 
 
 def register_client(request):
+    errors = None
     if request.method == 'POST':
         client_form = ClientRegistrationForm(request.POST)
         if client_form.is_valid():
@@ -62,14 +53,15 @@ def register_client(request):
             client.save()
             return HttpResponseRedirect(reverse('login_client'))
         else:
-            print(client_form.errors)
-    
+            errors = client_form.errors
     client_form = ClientRegistrationForm()
-    return render(request, 'accounts/register_client.html', {'client_form' : client_form})
+    return render(request, 'accounts/register_client.html', {'client_form' : client_form,
+                                                             'errors' : errors })
 
 
 def login_client(request):
     error = None
+    errors = None
     if request.method == 'POST':
         client_form = ClientLoginForm(request.POST)
         if client_form.is_valid():
@@ -84,13 +76,17 @@ def login_client(request):
                 return HttpResponseRedirect(reverse('index'))
             else:
                 error = 'Клиент с такими данными не найден.'
+        else:
+            errors = client_form.errors
     client_form = ClientLoginForm()
     return render(request, 'accounts/login_client.html', {'client_form' : client_form,
+                                                          'errors' : errors,
                                                           'error' : error})
                 
 
 def login_employee(request):
     error = None
+    errors = None
     if request.method == 'POST':
         employee_form = EmployeeLoginForm(request.POST)
         if employee_form.is_valid():
@@ -105,23 +101,26 @@ def login_employee(request):
                 return HttpResponseRedirect(reverse('index'))
             else:
                 error = 'Сотрудник с такими данными не найден.'
+        else:
+            errors = employee_form.errors
     employee_form = EmployeeLoginForm()
-    return render(request, 'accounts/login_employee.html', {'employee_form' : employee_form, 
+    return render(request, 'accounts/login_employee.html', {'employee_form' : employee_form,
+                                                            'errors' : errors, 
                                                             'error' : error})
 
 @login_required
 def update_profile_view(request, pk):
-    print(request.method)
+    errors = None
     if request.method == "POST":
-        profile_form = ProfileUpdateForm(request.POST, instance=request.user)
-        print(profile_form.is_valid())
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
         if profile_form.is_valid():
             profile_form.save()
             return HttpResponseRedirect(reverse('login_client'))
         else:
-            print(profile_form.errors)
+            errors = profile_form.errors
     profile_form = ProfileUpdateForm(instance=request.user)
-    return render(request, 'accounts/update_profile.html', {'profile_form' :  profile_form })
+    return render(request, 'accounts/update_profile.html', {'profile_form' :  profile_form,
+                                                            'errors' : errors})
 
 
 @login_required

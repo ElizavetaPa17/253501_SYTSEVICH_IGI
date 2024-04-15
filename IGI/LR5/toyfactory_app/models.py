@@ -16,6 +16,7 @@ class User(AbstractUser):
     phone = models.CharField(max_length=20, unique=True)
     town = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='images', blank=True, null=True)
     birthday = models.DateField()
 
     REQUIRED_FIELDS = []

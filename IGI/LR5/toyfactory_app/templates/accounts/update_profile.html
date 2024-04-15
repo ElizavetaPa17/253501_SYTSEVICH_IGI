@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    <form method="POST" action="">
+    <form method="POST" action="" enctype='multipart/form-data'>
         {% csrf_token %}
         <div>
             <p>
@@ -18,7 +18,13 @@
             <p>
                 Подтверждение пароля: {{profile_form.password2}}
             </p>
+            <p> Фото:
+                {{profile_form.image}}
+            </p>
         </div>
         <button type="submit" >Сохранить</button>
     </form>
+    {% if errors %}
+        {{ errors }}
+    {% endif %}
 {% endblock %}

@@ -8,9 +8,7 @@
         <input type="submit" value="Зарегистрироваться">
     </form>
     <a href="{% url 'login_client' %}">Уже есть аккаунт</a>
-    {% if client_form.errors  %}
-    <div class="alert alert-danger">
-        {{ client_form.errors  }}
-    </div>
+    {% if errors %}
+        {{errors}}
     {% endif %}
 {% endblock %} 
