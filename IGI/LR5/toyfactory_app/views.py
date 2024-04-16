@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+from django.shortcuts import get_object_or_404
 from .models import *
 from .forms import *
 from .constants import *
@@ -14,10 +15,13 @@ def index(request):
     return render(request, 'index.html')
 
 def news_list_view(request):
-    return render(request, 'news/news_list.html')
+    news_list = News.objects.all()
+    return render(request, 'news/list.html', {'news_list' : news_list})
 
-def toys(request):
-    return render(request, 'toys.html')
+
+def news_detail_view(request, pk):
+    news = get_object_or_404(News, pk=pk)
+    return render(request, 'news/detail.html', {'news' : news})
 
 
 def promocodes(request):
@@ -37,7 +41,9 @@ def vacations(request):
 
 
 def about(request):
-    return render(request, 'about.html')
+    company = Company.objects.all()
+    company = company[0]
+    return render(request, 'about.html', {'company' : company})
 
 
 def termines(request):
@@ -134,18 +140,19 @@ def profile_view(request, pk):
     return render(request, 'accounts/profile.html', {'user' : request.user})
 
 
-def toys_list(request, toy_type_slug=None):
-    toy_type = None
+def toys_list(request, toy_type=None):
+    ttype = None
     toys = Toy.objects.all()
+    toy_types=None
     toy_types = ToyType.objects.all()
     if toy_type:
-        toy_type = get_object_or_404(ToyType, slug=toy_type_slug)
-        toys = toys.filter(toy_type=toy_type)
-    return render(request, 'toy/list.html', {'toy_type'  : toy_type, 
-                                             'toy_types' : toy_types,
+        ttype = get_object_or_404(ToyType, slug=toy_type)
+        toys = toys.filter(toy_type=ttype)
+    return render(request, 'toy/list.html', {'ttype'  : ttype, 
+                                             'ttypes' : toy_types,
                                              'toys' : toys })
 
 
-def toy_details(request, id):
-    toy = get_object_or_404(Toy, id=id)
-    return render(request, 'toy/toy_details.html', { 'toy' : toy })
+def toy_details(request, pk):
+    toy = get_object_or_404(Toy, pk=pk)
+    return render(request, 'toy/detail.html', { 'toy' : toy })

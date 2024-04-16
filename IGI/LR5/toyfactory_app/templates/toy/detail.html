@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>{{ toy.name }}</h1>
+    <p>Вид игрушки: {{ toy.toy_type }}</p>
+    <p>Цена: {{ toy.price }}</p>
+    <img src="{{ toy.image.url }}"
+         width="400"
+         height="300">
+    {% if toy.produced %} <p>В продаже.</p> <a href="">Купить</a>
+    {% else %} <p>Не в продаже</p>
+    {% endif %}
+{% endblock %}

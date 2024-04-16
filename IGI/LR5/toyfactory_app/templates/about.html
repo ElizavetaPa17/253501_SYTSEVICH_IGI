@@ -1,4 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
     <h1>О компании</h1>
+    <p>Наименование: {{ company.name }}</p>
+    <figure>
+        <img src="{{ company.logo.url }}"
+             width="400"
+             height="300">
+        <figcaption>Логотип компании</figcaption>
+    </figure>
+    <p>Адрес: {{ company.address }}</p>
+    <p>Почта: {{ company.email }}</p>
+    <p>Дата основания: {{ company.creation }}</p>
 {% endblock %}

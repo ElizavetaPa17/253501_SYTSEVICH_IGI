@@ -24,8 +24,11 @@ from toyfactory_app import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',                              views.index,          name='index'),
-    re_path(r'^toy/list$',                views.toys_list,      name='toys'),
+    re_path(r'^toy/list$',                views.toys_list,      name='toys_list'),
+    re_path(r'^toy/list/(?P<toy_type>[-\w]+)$', views.toys_list, name='toys_list_by_type'),
+    re_path(r'^toy/detail/(?P<pk>\d+)$', views.toy_details, name='toy_detail'),
     re_path(r'^news/$',                   views.news_list_view, name='news_list'),
+    re_path(r'^news/detail/(?P<pk>\d+)$', views.news_detail_view, name='news_detail'),
     re_path(r'^account/register_client$', views.register_client, name='register_client'),
     re_path(r'^account/login_client$',    views.login_client,   name='login_client'),
     re_path(r'^account/login_employee$',  views.login_employee, name='login_employee'),

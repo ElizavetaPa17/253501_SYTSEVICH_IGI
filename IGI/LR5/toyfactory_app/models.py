@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from .managers import *
 from .constants import *
+from django.urls import reverse
 
 class User(AbstractUser):
     username = None
@@ -16,7 +17,7 @@ class User(AbstractUser):
     phone = models.CharField(max_length=20, unique=True)
     town = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='images', blank=True, null=True)
+    image = models.ImageField(upload_to='images', blank=True, null=True, default='images/no_photo.png')
     birthday = models.DateField()
 
     REQUIRED_FIELDS = []
@@ -55,9 +56,9 @@ class Client(User):
 # Create your models here.
 class Company(models.Model):
     name  = models.CharField(max_length=150)
-    logo  = models.ImageField(null=True)
-    video = models.FileField(null=True,
-                            validators=[FileExtensionValidator(allowed_extensions=['MOV', 'avi', 'mp4', 'webm', 'mkv'])])
+    logo  = models.ImageField(upload_to='images', null=True, blank=True)
+    video = models.FileField(null=True, blank=True,
+                             validators=[FileExtensionValidator(allowed_extensions=['MOV', 'avi', 'mp4', 'webm', 'mkv'])])
     address  = models.CharField(max_length=150)
     email    = models.EmailField()
     creation = models.DateField()
@@ -65,7 +66,7 @@ class Company(models.Model):
 
 class News(models.Model):
     title = models.CharField(max_length=150)
-    image = models.ImageField(null=True)
+    image = models.ImageField(upload_to='images', blank=True, null=True)
     description = models.CharField(max_length=150)
 
     def get_absolute_url(self):
@@ -103,6 +104,9 @@ class ToyType(models.Model):
     name = models.CharField(max_length=150, unique=True)
     slug = models.SlugField(max_length=150, unique=True)
  
+    def get_absolute_url(self):
+         return reverse('toys_list_by_type', args=[self.slug])
+
     def __str__(self):
         return self.name
 
@@ -111,7 +115,7 @@ class Toy(models.Model):
     name = models.CharField(max_length=150, unique=True)
     price = models.FloatField()
     toy_type = models.ForeignKey(ToyType, null=True, on_delete=models.SET_NULL)
-    image = models.ImageField(null=True)
+    image = models.ImageField(upload_to='images', blank=True, null=True)
     produced = models.BooleanField()
 
     class Meta:

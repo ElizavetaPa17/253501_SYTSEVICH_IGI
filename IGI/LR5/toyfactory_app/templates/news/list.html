@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Новости</h1>
+    {% for news in news_list %}
+        <div class="item">
+            <a href="{{ news.get_absolute_url }}">
+            </a>
+            <p>{{ news.title }}</p>
+            <img src="{{ news.image.url }}"
+                 width="400"
+                 height="300">
+            <form action="{{ news.get_absolute_url }}" target="_blank">
+                <button>Читать далее</button>
+            </form>
+        </div>
+    {% endfor %}
+{% endblock %}

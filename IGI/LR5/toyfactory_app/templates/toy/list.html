@@ -1,4 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
     <h1>Игрушки</h1>
+    <h3>Виды</h3>
+    <ul>
+        <li {% if not ttype %}class="selected"{% endif %}>
+            <a href="{% url 'toys_list' %}">All</a>
+        </li>
+        {% for t in ttypes %}
+            <li {% if ttype.slug == t.slug %} class="selected"{% endif %}>
+                <a href="{{ t.get_absolute_url }}">{{ t.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <h1>{% if type %}{{ toy_type.name }}{% else %}Игрушки{% endif %}</h1>
+        {% for toy in toys %}
+            <div class="item">
+                <a href="{{ toy.get_absolute_url }}">
+                </a>
+                <a href="{{ toy.get_absolute_url }}">{{ toy.name }}</a><br>
+                <img src="{{ toy.image.url }}"
+                     width="400"
+                     height="300">
+                ${{ toy.price }}
+            </div>
+        {% endfor %}
 {% endblock %}
