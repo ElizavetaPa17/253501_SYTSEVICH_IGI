@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Отзывы клиентов</h1>
+    {% if feedbacks %}
+    <ul>
+        {% for feedback in feedbacks %}
+        <li>
+            <p>Автор: {{feedback.user.email}}</p>
+            <p>Заголовок: {{feedback.title}}</p>
+            <p>Оценка: {{feedback.mark}}</p>
+            <p>Описание: {{feedback.description}}</p>
+            <p>Дата: {{feedback.date}}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>На данный момент отзывы отсутствуют.</p>
+    {% endif %}
+    {% if user.is_authenticated and user.role == required_role %}
+        <form action="{% url 'add_feedback' %}" target="_blank">
+            <button>Написать отзыв</button>
+        </form>
+    {% endif %}
+    {% include "pagination.html" with page=feedbacks %}
+{% endblock %}

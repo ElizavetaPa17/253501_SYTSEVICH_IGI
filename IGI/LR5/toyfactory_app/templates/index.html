@@ -1,4 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Домашняя страница</h1>
-{% endblock %}
+    {% if news %}
+        <h1>Последние новости</h1>
+        <p>{{ news.title }}</p>
+        <img src="{{ news.image.url }}"
+            width="400"
+            height="300">
+    {% else %}
+        <h1>Новостей нет.</h1>
+    {% endif %}
+{% endblock %} 

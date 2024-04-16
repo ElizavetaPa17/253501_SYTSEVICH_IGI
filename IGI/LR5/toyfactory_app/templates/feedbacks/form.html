@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+    <form action="" method="POST">
+        {% csrf_token %}
+        <table>
+            {{feedback_form}}
+        </table>
+        <input type="submit" value="Отправить">
+    </form>
+    {% if errors %}
+        {{errors}}
+    {% endif %}
+{% endblock %} 

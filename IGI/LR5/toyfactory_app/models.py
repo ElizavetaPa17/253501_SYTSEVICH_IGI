@@ -94,10 +94,14 @@ class Vacation(models.Model):
 
 
 class Feedback(models.Model):
+    user = models.ForeignKey(User, related_name='author', on_delete=models.CASCADE)
     title = models.CharField(max_length=150)
     mark = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(5)])
     description = models.TextField()
     date = models.DateField()
+
+    def __str__(self):
+        return "Feedback on {}".format(self.title)
 
 
 class ToyType(models.Model):

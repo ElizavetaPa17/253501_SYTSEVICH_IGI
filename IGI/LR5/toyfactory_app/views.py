@@ -6,13 +6,18 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.shortcuts import get_object_or_404
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import *
 from .forms import *
 from .constants import *
 
 # Create your views here.
 def index(request):
-    return render(request, 'index.html')
+    news_list = News.objects.all()
+    news = None
+    if news_list:
+        news = news_list[0]
+    return render(request, 'index.html', {'news' : news})
 
 def news_list_view(request):
     news_list = News.objects.all()
@@ -28,8 +33,32 @@ def promocodes(request):
     return render(request, 'promocodes.html')
 
 
-def feedbacks(request):
-    return render(request, 'feedbacks.html')
+def feedbacks_view(request):
+    feedbacks_list = Feedback.objects.all()
+    paginator = Paginator(feedbacks_list, 5)
+    page = request.GET.get('page')
+    try:
+        feedbacks = paginator.page(page)
+    except PageNotAnInteger:
+        feedbacks = paginator.page(1)
+    except EmptyPage:
+        feedbacks = paginator.page(paginator.num_pages)
+    return render(request, 'feedbacks/list.html', {'feedbacks' : feedbacks,
+                                                   'page' : page,
+                                                   'required_role' : CLIENT })
+
+
+def add_feedback_view(request):
+    errors = None
+    if request.method == 'POST':
+        feedback_form = FeedbackForm(request.POST)
+        if feedback_form.is_valid():
+            feedback_form.save()
+        else:
+            errors = feedback_form.errors
+    feedback_form = FeedbackForm()
+    return render(request, 'feedbacks/form.html', {'feedback_form' : feedback_form, 
+                                                   'errors' : errors})
 
 
 def policy(request):
@@ -37,7 +66,17 @@ def policy(request):
 
 
 def vacations(request):
-    return render(request, 'vacations.html')
+    vacations_list = Vacation.objects.all()
+    paginator = Paginator(vacations_list, 5)
+    page = request.GET.get('page')
+    try:
+        vacations = paginator.page(page)
+    except PageNotAnInteger:
+        vacations = paginator.page(1)
+    except EmptyPage:
+        vacations = paginator.page(paginator.num_pages)
+    return render(request, 'vacations.html', {'vacations' : vacations,
+                                              'page' : page})
 
 
 def about(request):
@@ -155,4 +194,5 @@ def toys_list(request, toy_type=None):
 
 def toy_details(request, pk):
     toy = get_object_or_404(Toy, pk=pk)
-    return render(request, 'toy/detail.html', { 'toy' : toy })
+    return render(request, 'toy/detail.html', { 'toy' : toy ,
+                                                'required_role' : CLIENT})

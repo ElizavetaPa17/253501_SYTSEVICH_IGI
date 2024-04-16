@@ -156,3 +156,14 @@ class EmployeeLoginForm(forms.Form):
     class Meta:
         model = Employee
         fields = ('first_name', 'last_name', 'password1')
+
+
+class FeedbackForm(forms.ModelForm):
+    title = forms.CharField(max_length=150, label='Заголовок')   
+    mark = forms.IntegerField(label='Оценка',
+                              validators=[MinValueValidator(1), MaxValueValidator(5)])
+    description = forms.CharField(widget=forms.Textarea(attrs={"rows":"5"}))
+
+    class Meta:
+        model = Feedback
+        fields = ('title', 'mark', 'description')

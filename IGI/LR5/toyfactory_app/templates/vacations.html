@@ -1,4 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Вакансии</h1>
+    <h1>Список открытых вакансий</h1>
+    {% if vacations %}
+    <ul>
+        {% for vacation in vacations %}
+        <li>
+            <p>Занимаемая должность: {{vacation.position}}</p>
+            <p>Описание вакансии: {{vacation.description}}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>На данный момент вакансии отсутствуют.</p>
+    {% endif %}
+    {% include "pagination.html" with page=vacations %}
 {% endblock %}

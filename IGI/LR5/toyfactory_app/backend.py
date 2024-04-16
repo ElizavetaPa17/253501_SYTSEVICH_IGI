@@ -7,8 +7,10 @@ class MyBackend:
             user = User.objects.get(first_name=first_name, last_name=last_name)
             if user.check_password(password):
                 return user
+            print(password, user.password, user)
             return None
         except User.DoesNotExist:
+            print('there')
             return None
 
     def get_user(self, user_id):
