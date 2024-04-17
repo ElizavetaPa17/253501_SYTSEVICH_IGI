@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Список моих клиентов</h1>
+    {% if clients %}
+    <ul>
+        {% for client in clients %}
+        <li>
+            <p>Имя: {{client.user.first_name}}</p>
+            <p>Почта: {{client.user.email}}</p>
+            <p>Номер телефона: {{client.user.phone}}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>На данный момент список ваших клиентов пуст.</p>
+    {% endif %}
+    {% include "pagination.html" with page=clients %}
+{% endblock %}

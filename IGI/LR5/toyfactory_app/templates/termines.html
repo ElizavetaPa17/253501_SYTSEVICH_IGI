@@ -1,4 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Словарь терминов и понятий</h1>
+    <h1>Вопросы и ответы</h1>
+    {% if termines %}
+    <ul>
+        {% for termine in termines %}
+        <li>
+            <p>Дата: {{ termine.date }}</p>
+            <p>Вопрос: {{ termine.question }}</p>
+            <p>Ответ: {{ termine.answer }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>На данный момент список вопросов пуст.</p>
+    {% endif %}
+    {% include "pagination.html" with page=termines %}
 {% endblock %}

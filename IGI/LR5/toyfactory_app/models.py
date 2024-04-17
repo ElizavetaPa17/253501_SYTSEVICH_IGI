@@ -1,6 +1,5 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
-from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from .managers import *
 from .constants import *
@@ -17,7 +16,7 @@ class User(AbstractUser):
     phone = models.CharField(max_length=20, unique=True)
     town = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='images', blank=True, null=True, default='images/no_photo.png')
+    image = models.ImageField(upload_to='images/', blank=True, null=True, default='images/no_photo.png')
     birthday = models.DateField()
 
     REQUIRED_FIELDS = []
@@ -53,10 +52,14 @@ class Client(User):
         return super().save(*args, **kwargs)
 
 
+class UsersRelations(models.Model):
+    user = models.ForeignKey(User, related_name='self_user', on_delete=models.CASCADE)
+    user_owner = models.ForeignKey(User, related_name='owner', on_delete=models.CASCADE)
+
 # Create your models here.
 class Company(models.Model):
     name  = models.CharField(max_length=150)
-    logo  = models.ImageField(upload_to='images', null=True, blank=True)
+    logo  = models.ImageField(upload_to='images/', null=True, blank=True)
     video = models.FileField(null=True, blank=True,
                              validators=[FileExtensionValidator(allowed_extensions=['MOV', 'avi', 'mp4', 'webm', 'mkv'])])
     address  = models.CharField(max_length=150)
@@ -66,7 +69,7 @@ class Company(models.Model):
 
 class News(models.Model):
     title = models.CharField(max_length=150)
-    image = models.ImageField(upload_to='images', blank=True, null=True)
+    image = models.ImageField(upload_to='images/', blank=True, null=True)
     description = models.CharField(max_length=150)
 
     def get_absolute_url(self):
@@ -80,6 +83,9 @@ class TermsDictionary(models.Model):
     question = models.TextField()
     answer = models.TextField()
     date = models.DateField()
+
+    def __str__(self):
+        return self.question
 
 
 class Vacation(models.Model):
@@ -119,7 +125,7 @@ class Toy(models.Model):
     name = models.CharField(max_length=150, unique=True)
     price = models.FloatField()
     toy_type = models.ForeignKey(ToyType, null=True, on_delete=models.SET_NULL)
-    image = models.ImageField(upload_to='images', blank=True, null=True)
+    image = models.ImageField(upload_to='images/', blank=True, null=True, default='images/no_photo.png')
     produced = models.BooleanField()
 
     class Meta:
@@ -132,13 +138,21 @@ class Toy(models.Model):
         return self.name
 
 
+class PromocodeType(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+    slug = models.SlugField(max_length=150, unique=True)
+
+    def get_absolute_url(self):
+        return reverse('promocodes_list_by_type', args=[self.slug])
+
+    def __str__(self):
+        return self.slug
+
+
 class Promocode(models.Model):
     name = models.CharField(max_length=150)
     discount  = models.FloatField()
-    is_active = models.BooleanField()
-
-    def get_absolute_url(self):
-         return reverse('promocode_detail', args=[str(self.id)])
+    promocode_type = models.ForeignKey(PromocodeType, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -147,7 +161,7 @@ class Promocode(models.Model):
 class Order(models.Model):
     order_date  = models.DateField()
     finish_date = models.DateField()
-    #client = models.OneToOneField(Client, on_delete=models.SET_NULL, null=True)
+    client = models.OneToOneField(Client, on_delete=models.SET_NULL, null=True)
     toy = models.ForeignKey(Toy, null=True, on_delete=models.SET_NULL)
     toy_count = models.IntegerField()
     promocodes = models.ManyToManyField(Promocode)

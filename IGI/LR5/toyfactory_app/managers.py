@@ -1,5 +1,4 @@
 from django.contrib.auth.models import BaseUserManager
-from .models import User
 import datetime
 from .constants import *
 

@@ -10,6 +10,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import *
 from .forms import *
 from .constants import *
+import datetime
+from django.contrib.auth.hashers import make_password, check_password
 
 # Create your views here.
 def index(request):
@@ -17,6 +19,13 @@ def index(request):
     news = None
     if news_list:
         news = news_list[0]
+
+    #users = User.objects.all()
+    #for user in users:
+    #    user.set_password('bz718nqf45')
+    ##    print(user.password)
+    #    user.save()
+    
     return render(request, 'index.html', {'news' : news})
 
 def news_list_view(request):
@@ -29,8 +38,26 @@ def news_detail_view(request, pk):
     return render(request, 'news/detail.html', {'news' : news})
 
 
-def promocodes(request):
-    return render(request, 'promocodes.html')
+def promocodes_view(request, promocode_type=None):
+    pr_type = None
+    promocodes = Promocode.objects.all()
+    pr_types = PromocodeType.objects.all()
+    if promocode_type:
+        pr_type = get_object_or_404(PromocodeType, slug=promocode_type)
+        promocodes = promocodes.filter(promocode_type=pr_type)
+    
+    paginator = Paginator(promocodes, 5)
+    page = request.GET.get('page')
+    try:
+        promocodes = paginator.page(page)
+    except PageNotAnInteger:
+        promocodes = paginator.page(1)
+    except EmptyPage:
+        promocodes = paginator.page(paginator.num_pages)
+    return render(request, 'promocodes.html', {'pr_type'    : pr_type, 
+                                               'pr_types'   : pr_types,
+                                               'promocodes' : promocodes,
+                                               'page' : page })
 
 
 def feedbacks_view(request):
@@ -48,12 +75,16 @@ def feedbacks_view(request):
                                                    'required_role' : CLIENT })
 
 
+@login_required
 def add_feedback_view(request):
     errors = None
     if request.method == 'POST':
         feedback_form = FeedbackForm(request.POST)
         if feedback_form.is_valid():
-            feedback_form.save()
+            feedback = feedback_form.save(commit=False)
+            feedback.user = request.user
+            feedback.date = datetime.date.today()
+            feedback.save()
         else:
             errors = feedback_form.errors
     feedback_form = FeedbackForm()
@@ -61,11 +92,11 @@ def add_feedback_view(request):
                                                    'errors' : errors})
 
 
-def policy(request):
+def policy_view(request):
     return render(request, 'policy.html')
 
 
-def vacations(request):
+def vacations_view(request):
     vacations_list = Vacation.objects.all()
     paginator = Paginator(vacations_list, 5)
     page = request.GET.get('page')
@@ -79,17 +110,26 @@ def vacations(request):
                                               'page' : page})
 
 
-def about(request):
+def about_view(request):
     company = Company.objects.all()
     company = company[0]
     return render(request, 'about.html', {'company' : company})
 
 
-def termines(request):
-    return render(request, 'termines.html')
+def termines_view(request):
+    termines_list = TermsDictionary.objects.all()
+    paginator = Paginator(termines_list, 5)
+    page = request.GET.get('page')
+    try:
+        termines = paginator.page(page)
+    except PageNotAnInteger:
+        termines = paginator.page(1)
+    except EmptyPage:
+        termines = paginator.page(paginator.num_pages)
+    return render(request, 'termines.html', {'termines' : termines})
 
 
-def register_client(request):
+def register_client_view(request):
     errors = None
     if request.method == 'POST':
         client_form = ClientRegistrationForm(request.POST)
@@ -104,7 +144,7 @@ def register_client(request):
                                                              'errors' : errors })
 
 
-def login_client(request):
+def login_client_view(request):
     error = None
     errors = None
     if request.method == 'POST':
@@ -129,7 +169,7 @@ def login_client(request):
                                                           'error' : error})
                 
 
-def login_employee(request):
+def login_employee_view(request):
     error = None
     errors = None
     if request.method == 'POST':
@@ -143,6 +183,7 @@ def login_employee(request):
                                     password=password)
             if employee:
                 login(request, employee)
+                print('here')
                 return HttpResponseRedirect(reverse('index'))
             else:
                 error = 'Сотрудник с такими данными не найден.'
@@ -179,20 +220,53 @@ def profile_view(request, pk):
     return render(request, 'accounts/profile.html', {'user' : request.user})
 
 
-def toys_list(request, toy_type=None):
+def toys_list_view(request, toy_type=None):
     ttype = None
     toys = Toy.objects.all()
-    toy_types=None
     toy_types = ToyType.objects.all()
     if toy_type:
         ttype = get_object_or_404(ToyType, slug=toy_type)
         toys = toys.filter(toy_type=ttype)
+    
+    ordering = request.GET.get('orderby')
+    if (ordering):
+        if (ordering == 'По возрастанию цены'):
+            toys = toys.order_by('price')
+        elif (ordering == 'По убыванию цены'):
+            toys = toys.order_by('-price')
+
+    paginator = Paginator(toys, 5)
+    page = request.GET.get('page')
+    try:
+        toys = paginator.page(page)
+    except PageNotAnInteger:
+        toys = paginator.page(1)
+    except EmptyPage:
+        toys = paginator.page(paginator.num_pages)
+    
     return render(request, 'toy/list.html', {'ttype'  : ttype, 
                                              'ttypes' : toy_types,
-                                             'toys' : toys })
+                                             'toys' : toys,
+                                             'page' : page })
 
 
-def toy_details(request, pk):
+def toy_details_view(request, pk):
     toy = get_object_or_404(Toy, pk=pk)
     return render(request, 'toy/detail.html', { 'toy' : toy ,
                                                 'required_role' : CLIENT})
+
+
+def employee_clients_list_view(request):
+    clients = UsersRelations.objects.all().filter(user=request.user)
+
+    paginator = Paginator(clients, 5)
+    page = request.GET.get('page')
+    try:
+        clients = paginator.page(page)
+    except PageNotAnInteger:
+        clients = paginator.page(1)
+    except EmptyPage:
+        clients = paginator.page(paginator.num_pages)
+
+    return render(request, 'accounts/my_clients.html', {'clients' : clients,
+                                                        'page' : page})

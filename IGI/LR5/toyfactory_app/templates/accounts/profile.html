@@ -35,6 +35,10 @@
          width="400"
          height="300"
          alt="Фото сотрудника">
-    <a href="{% url 'update_profile' user.pk %}">Редактировать профиль</a>
+    {% if user.role == "CLIENT" %} 
+        <a href="{% url 'update_profile' user.pk %}">Редактировать профиль</a>
+    {% elif user.role == "EMPLOYEE" %}
+        <a href="{% url 'employee_clients_list'%}">Мои клиенты</a>
+    {% endif %}
     <a href="{% url 'logout'}">Выйти</a>
 {% endblock %}

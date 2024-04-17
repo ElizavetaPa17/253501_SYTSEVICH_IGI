@@ -10,8 +10,16 @@
             <li {% if ttype.slug == t.slug %} class="selected"{% endif %}>
                 <a href="{{ t.get_absolute_url }}">{{ t.name }}</a>
             </li>
-        {% endfor %}
+        {% endfor %} 
     </ul>
+    <h3>Сортировка</h3>
+    <form action="" method="GET">
+        <ul class="dropdown-menu" role="menu">
+            <li><input type="submit" name="orderby" value="По умолчанию"></li>
+            <li><input type="submit" name="orderby" value="По возрастанию цены"></li>
+            <li><input type="submit" name="orderby" value="По убыванию цены"></li>
+        </ul>
+    </form>
     <h1>{% if type %}{{ toy_type.name }}{% else %}Игрушки{% endif %}</h1>
         {% for toy in toys %}
             <div class="item">
@@ -24,4 +32,5 @@
                 ${{ toy.price }}
             </div>
         {% endfor %}
+        {% include "pagination.html" with page=toys %}
 {% endblock %}

@@ -12,6 +12,10 @@ class EmployeeAdmin(admin.ModelAdmin):
     list_filter = ('birthday', 'town')
  
 
+class UsersRelationsAdmin(admin.ModelAdmin):
+    list_display = ('user', 'user_owner')
+
+
 class ToyTypeAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name", )}
 
@@ -28,8 +32,12 @@ class ClientAdmin(admin.ModelAdmin):
 
 
 class PromocodeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'discount', 'is_active')
-    list_filter = ('discount', 'is_active')
+    list_display = ('name', 'discount', 'promocode_type')
+    list_filter = ('discount', 'promocode_type')
+
+
+class PromocodeTypeAdmin(admin.ModelAdmin):
+    prepopulated_fields = {"slug": ("name", )}
 
 
 class OrderAdmin(admin.ModelAdmin):
@@ -41,9 +49,11 @@ admin.site.register(Company)
 admin.site.register(News)
 admin.site.register(TermsDictionary)
 admin.site.register(Vacation)
-admin.site.register(Feedback,  FeedbackAdmin)
-admin.site.register(Employee,  EmployeeAdmin)
-admin.site.register(ToyType,   ToyTypeAdmin)
-admin.site.register(Toy,       ToyAdmin)
-admin.site.register(Order,     OrderAdmin)
-admin.site.register(Promocode, PromocodeAdmin)
+admin.site.register(Feedback,       FeedbackAdmin)
+admin.site.register(Employee,       EmployeeAdmin)
+admin.site.register(UsersRelations, UsersRelationsAdmin)
+admin.site.register(ToyType,        ToyTypeAdmin)
+admin.site.register(Toy,            ToyAdmin)
+admin.site.register(Order,          OrderAdmin)
+admin.site.register(Promocode,      PromocodeAdmin)
+admin.site.register(PromocodeType,  PromocodeTypeAdmin)
