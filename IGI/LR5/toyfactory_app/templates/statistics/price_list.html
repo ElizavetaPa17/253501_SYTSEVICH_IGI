@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if toys %}
+        <table>
+            <tr>
+                <th>Название</th>
+                <th>Цена ($)</th>
+            </tr>
+            {% for toy in toys %}
+            <tr>
+                <td>{{toy.name}}</td>
+                <td>{{toy.price}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Прайс лист пуст. </p>
+    {% endif %}
+{% endblock %} 

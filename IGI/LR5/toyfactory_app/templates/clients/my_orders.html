@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Список моих заказов</h1>
+    {% if orders %}
+    <ul>
+        {% for order in orders %}
+        <li>
+            <p>Дата заказа: {{order.order_date}}</p>
+            <p>Дата окончания заказа: {{order.finish_date}}</p>
+            <p>Название игрушки: {{order.toy.name}}</p>
+            <p>Количество игрушек: {{order.toy_count}}</p>
+            <p>Прибыль: {{order.total_price}}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>На данный момент список заказов клиента пуст.</p>
+    {% endif %}
+    {% include "pagination.html" with page=orders %}
+{% endblock %}

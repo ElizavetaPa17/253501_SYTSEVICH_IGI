@@ -8,7 +8,7 @@
          height="300">
     {% if toy.produced %} <p>В продаже.</p>
         {% if user.is_authenticated and user.role == required_role %} 
-            <form action="{{ toy.get_absolute_url }}" target="_blank">
+            <form action="{% url 'create_order' toy.pk %}" target="_blank">
                 <button>Купить</button>
             </form>
         {% endif %}

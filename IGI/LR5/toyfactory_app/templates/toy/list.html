@@ -33,4 +33,12 @@
             </div>
         {% endfor %}
         {% include "pagination.html" with page=toys %}
+    {% if user.is_authenticated and pickuppoints %}
+        <p>Точки самовывоза: </p>
+        <ul>
+            {% for point in pickuppoints %}
+            <li>{{point.point}}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 {% endblock %}

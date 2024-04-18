@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-    {% if user.role == 2 %}
+    {% if user.role == 'CLIENT' %}
     <h1>
         Ваш аккаунт клиента
     </h1>
-    {% else %}
+    {% elif user.role == 'EMPLOYEE' %}
     <h1>
         Ваш аккаунт сотрудника
     </h1>
     {% endif %}
+    {% if user.role == 'CLIENT' or user.role == 'EMPLOYEE' %}
     <p>
         Имя: {{user.first_name}}
     </p>
@@ -35,10 +36,16 @@
          width="400"
          height="300"
          alt="Фото сотрудника">
+    {% else %}
+    <h1>Аккаунт администратора</h1>
+    {% endif %}
     {% if user.role == "CLIENT" %} 
         <a href="{% url 'update_profile' user.pk %}">Редактировать профиль</a>
+        <a href="{% url 'my_orders_list' %}">Мои заказы</a>
     {% elif user.role == "EMPLOYEE" %}
-        <a href="{% url 'employee_clients_list'%}">Мои клиенты</a>
+        <a href="{% url 'employee_clients_list' %}">Мои клиенты</a>
+    {% else %}
+        <a href="{% url 'statistics' %}">Статистика</a>
     {% endif %}
     <a href="{% url 'logout'}">Выйти</a>
 {% endblock %}

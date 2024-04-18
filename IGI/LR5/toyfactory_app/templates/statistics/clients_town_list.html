@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Список клиентов по городам</h1>
+        {% for client in clients %}
+            <div class="item">
+                <p>{{client.first_name}} {{client.last_name}}</p>
+            </div>
+        {% endfor %}
+        {% include "pagination.html" with page=clients %}
+{% endblock %}

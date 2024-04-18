@@ -10,6 +10,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import *
 from .forms import *
 from .constants import *
+import pandas as pd
 import datetime
 from django.contrib.auth.hashers import make_password, check_password
 
@@ -244,10 +245,12 @@ def toys_list_view(request, toy_type=None):
     except EmptyPage:
         toys = paginator.page(paginator.num_pages)
     
+    pickuppoints = PickUpPoints.objects.all()
     return render(request, 'toy/list.html', {'ttype'  : ttype, 
                                              'ttypes' : toy_types,
                                              'toys' : toys,
-                                             'page' : page })
+                                             'page' : page,
+                                             'pickuppoints' :  pickuppoints})
 
 
 def toy_details_view(request, pk):
@@ -255,9 +258,32 @@ def toy_details_view(request, pk):
     return render(request, 'toy/detail.html', { 'toy' : toy ,
                                                 'required_role' : CLIENT})
 
+def create_order_view(request, pk):
+    errors = None
+    if request.method == "POST":
+        order_form = OrderForm(request.POST)
+        if order_form.is_valid():
+            order = order_form.save(commit=False)
+
+            order.order_date = datetime.date.today()
+            order.finish_date = datetime.date.today() + datetime.timedelta(days=3)
+            order.client = get_object_or_404(Client, pk=request.user.pk)
+            order.toy = get_object_or_404(Toy, pk=pk)
+            order.total_price = order.toy.price * order_form.cleaned_data['toy_count'] * (1 - order_form.cleaned_data['promocodes'][0].discount / 100)
+            order.save()
+
+            return HttpResponseRedirect(reverse('toys_list'))
+        else:
+            errors = order_form.errors
+    order_form = OrderForm()
+    return render(request, 'toy/create_order.html', {'order_form' :  order_form,
+                                                     'errors' : errors})
+
+    pass
+
 
 def employee_clients_list_view(request):
-    clients = UsersRelations.objects.all().filter(user=request.user)
+    clients = UsersRelations.objects.all().filter(user_owner=request.user)
 
     paginator = Paginator(clients, 5)
     page = request.GET.get('page')
@@ -268,5 +294,74 @@ def employee_clients_list_view(request):
     except EmptyPage:
         clients = paginator.page(paginator.num_pages)
 
-    return render(request, 'accounts/my_clients.html', {'clients' : clients,
+    return render(request, 'clients/my_clients.html', {'clients' : clients,
                                                         'page' : page})
+
+
+def client_orders_view(request, pk=None):
+    client = Client.objects.all().filter(pk=pk).first()
+    orders = Order.objects.all().filter(client=client)
+    
+    paginator = Paginator(orders, 5)
+    page = request.GET.get('page')
+    try:
+        orders = paginator.page(page)
+    except PageNotAnInteger:
+        orders = paginator.page(1)
+    except EmptyPage:
+        orders = paginator.page(paginator.num_pages)
+
+    return render(request, 'clients/client_orders.html', {'client' : client,
+                                                          'orders' : orders,
+                                                          'page' : page})
+
+
+def my_orders_view(request):
+    client = Client.objects.all().filter(pk=request.user.pk).first()
+    orders = Order.objects.all().filter(client=client)
+
+    paginator = Paginator(orders, 5)
+    page = request.GET.get('page')
+    try:
+        orders = paginator.page(page)
+    except PageNotAnInteger:
+        orders = paginator.page(1)
+    except EmptyPage:
+        orders = paginator.page(paginator.num_pages)
+
+    return render(request, 'clients/my_orders.html', {'client' : client,
+                                                      'orders' : orders,
+                                                      'page' : page})
+
+
+@login_required
+def statistics_view(request):
+    return render(request, 'statistics/index.html')
+
+
+@login_required
+def statistics_price_view(request):
+    toys = Toy.objects.all()
+    return render(request, 'statistics/price_list.html', {'toys' : toys})
+
+
+def clients_town_view(request):
+    clients = Client.objects.all().order_by('town')
+    towns = []
+    for client in clients:
+        print(client.email)
+        towns.append(client.town)
+
+    print(pd.DataFrame(clients))
+
+    paginator = Paginator(clients, 5)
+    page = request.GET.get('page')
+    try:
+        clients = paginator.page(page)
+    except PageNotAnInteger:
+        clients = paginator.page(1)
+    except EmptyPage:
+        clients = paginator.page(paginator.num_pages)
+    return render(request, 'statistics/clients_town_list.html', {
+                                                                 'clients' : clients,
+                                                                 'page' : page })

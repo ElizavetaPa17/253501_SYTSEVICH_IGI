@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    <p>Оформление заказа</p>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <table>
+            {{order_form}}
+        </table>
+        <input type="submit" value="Оформить">
+    </form>
+    {% if errors %}
+        {{errors}}
+    {% endif %}
+{% endblock %} 

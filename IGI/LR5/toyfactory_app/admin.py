@@ -45,6 +45,10 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ('order_date', 'finish_date', 'toy', 'toy_count', 'promocodes')
 
 
+class PickUpPointsAdmin(admin.ModelAdmin):
+    list_display = ('point',)
+
+
 admin.site.register(Company)
 admin.site.register(News)
 admin.site.register(TermsDictionary)
@@ -57,3 +61,4 @@ admin.site.register(Toy,            ToyAdmin)
 admin.site.register(Order,          OrderAdmin)
 admin.site.register(Promocode,      PromocodeAdmin)
 admin.site.register(PromocodeType,  PromocodeTypeAdmin)
+admin.site.register(PickUpPoints,   PickUpPointsAdmin)

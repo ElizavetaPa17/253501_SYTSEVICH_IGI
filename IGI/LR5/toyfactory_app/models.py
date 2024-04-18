@@ -5,6 +5,7 @@ from .managers import *
 from .constants import *
 from django.urls import reverse
 
+
 class User(AbstractUser):
     username = None
     role = models.CharField(max_length=50, choices=USER_TYPE_CHOICES)
@@ -161,16 +162,17 @@ class Promocode(models.Model):
 class Order(models.Model):
     order_date  = models.DateField()
     finish_date = models.DateField()
-    client = models.OneToOneField(Client, on_delete=models.SET_NULL, null=True)
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
     toy = models.ForeignKey(Toy, null=True, on_delete=models.SET_NULL)
-    toy_count = models.IntegerField()
+    toy_count = models.IntegerField(validators=[MinValueValidator(1)])
+    total_price = models.IntegerField(default=0)
     promocodes = models.ManyToManyField(Promocode)
 
     def get_absolute_url(self):
          return reverse('order_detail', args=[str(self.id)])
 
     def __str__(self):
-        return str(self.code)
+        return str(self.pk)
 
     
 class PickUpPoints(models.Model):
