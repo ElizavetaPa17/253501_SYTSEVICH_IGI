@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Статистика игрушек</h1>
+    <p>Распределение по видам</p>
+    <img src="../media/images/toy_types.png"
+        width="700"
+        height="500">
+    <p>Средняя цена - {{average_price}}</p>
+    <p>Максимальная цена - {{max_price}}</p>
+    <p>Минимальная цена - {{min_price}}</p>
+    <p>Распределение по средней цене</p>
+    <img src="../media/images/toy_prices.png"
+        width="700"
+        height="500">
+    <p>Самая востребованная игрушка - {{popular_toy.name}} ({{popular_toy.toy_type.name}}) - в количестве {{popular_toy_count}}</p>
+    <p>Самая невостребованная игрушка - {{nonpopular_toy.name}} ({{nonpopular_toy.toy_type.name}}) - в количестве {{nonpopular_toy_count}}</p>
+{% endblock %}

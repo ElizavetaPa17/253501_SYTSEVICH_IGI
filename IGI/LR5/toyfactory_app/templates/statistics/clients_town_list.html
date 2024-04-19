@@ -1,10 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Список клиентов по городам</h1>
-        {% for client in clients %}
-            <div class="item">
-                <p>{{client.first_name}} {{client.last_name}}</p>
-            </div>
-        {% endfor %}
-        {% include "pagination.html" with page=clients %}
+    <h1>Статистика клиентов</h1>
+    <p>Распределение возрастов</p>
+    <img src="../media/images/clients_ages.png"
+        width="700"
+        height="500">
+    <p>Средний возраст - {{average_age}}</p>
+    <p>Максимальный возраст - {{max_age}}</p>
+    <p>Минимальный возраст - {{min_age}}</p>
+    <p>Распределение по городам</p>
+    <img src="../media/images/clients_per_town.png"
+        width="900"
+        height="500">
 {% endblock %}

@@ -345,23 +345,95 @@ def statistics_price_view(request):
     return render(request, 'statistics/price_list.html', {'toys' : toys})
 
 
-def clients_town_view(request):
-    clients = Client.objects.all().order_by('town')
+def statistics_clients_view(request):
+    clients = Client.objects.all()
     towns = []
+    ages = []
+    fl_names = []
     for client in clients:
-        print(client.email)
         towns.append(client.town)
+        fl_names.append(client.first_name + ' ' + client.last_name)
+        ages.append(datetime.datetime.today().year - client.birthday.year)
 
-    print(pd.DataFrame(clients))
+    df = pd.DataFrame({
+        'Имя' : fl_names,
+        'Город' : towns
+    }, )
 
-    paginator = Paginator(clients, 5)
-    page = request.GET.get('page')
-    try:
-        clients = paginator.page(page)
-    except PageNotAnInteger:
-        clients = paginator.page(1)
-    except EmptyPage:
-        clients = paginator.page(paginator.num_pages)
-    return render(request, 'statistics/clients_town_list.html', {
-                                                                 'clients' : clients,
-                                                                 'page' : page })
+    # Группировка по городам
+    df = df.rename(columns={'Город' : 'Город', 'Имя' : 'Количество проживающих'})
+    fig = df.groupby('Город').count().plot(kind='barh', figsize=(15,7))
+    fig.get_figure().savefig('media/images/clients_per_town.png')
+
+    # Информация о возрасте
+    df = pd.DataFrame({
+        'Имя' : fl_names,
+        'Возраст' : ages
+    })
+
+    df = df.rename(columns={'Имя' : 'Количество', 'Возраст' : 'Возраст'})
+    df.groupby('Возраст').count().plot().get_figure().savefig('media/images/clients_ages.png')
+
+    average_age = round(df['Возраст'].mean(), 2)
+    max_age = df['Возраст'].max()
+    min_age = df['Возраст'].min()
+
+    return render(request, 'statistics/clients_town_list.html', {'average_age' : average_age,
+                                                                 'max_age' : max_age,
+                                                                 'min_age' : min_age})
+
+
+def statistics_toy_view(request):
+    toys = Toy.objects.all()
+
+    toy_names = []
+    toy_type_names = []
+    toy_prices = []
+
+    for toy in toys:
+        toy_names.append(toy.name)
+        toy_type_names.append(toy.toy_type.name)
+        toy_prices.append(toy.price)
+
+    df = pd.DataFrame({
+        'Наименование игрушки' : toy_names,
+        'Модель игрушки' : toy_type_names
+    })
+
+    # Количество всех игрушек по видам
+    df = df.rename(columns={'Наименование игрушки' : 'Количество'})
+    df.groupby('Модель игрушки').count().plot(kind='bar').get_figure().savefig('media/images/toy_types.png')
+
+    # Средняя цена игрушек по видам
+    df = pd.DataFrame({
+        'Наименование игрушки' : toy_names,
+        'Модель игрушки' : toy_type_names,
+        'Цена' : toy_prices
+    })
+
+    df.groupby('Модель игрушки').mean('Цена').plot(kind='bar').get_figure().savefig('media/images/toy_prices.png')
+
+    # Общая информация о цене
+    average_price = round(df['Цена'].mean(), 2)
+    max_price  = round(df['Цена'].max(), 2)
+    min_price = round(df['Цена'].min(), 2)
+
+    # Самая востребованная и невостребованная игрушки
+    orders = Order.objects.all()
+    order_map = {}
+    for order in orders:
+        if (order_map.get(order.toy)):
+            order_map[order.toy] += order.toy_count
+        else:
+            order_map[order.toy] = order.toy_count
+
+    popular_toy = max(order_map, key=order_map.get)
+    nonpopular_toy = min(order_map, key=order_map.get)
+
+    return render(request, 'statistics/toys_list.html', {'average_price' : average_price,
+                                                         'max_price' : max_price,
+                                                         'min_price' : min_price, 
+                                                         'popular_toy' : popular_toy,
+                                                         'popular_toy_count' : order_map[popular_toy],
+                                                         'nonpopular_toy' : nonpopular_toy,
+                                                         'nonpopular_toy_count' : order_map[nonpopular_toy]})

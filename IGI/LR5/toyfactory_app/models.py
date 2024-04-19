@@ -166,7 +166,7 @@ class Order(models.Model):
     toy = models.ForeignKey(Toy, null=True, on_delete=models.SET_NULL)
     toy_count = models.IntegerField(validators=[MinValueValidator(1)])
     total_price = models.IntegerField(default=0)
-    promocodes = models.ManyToManyField(Promocode)
+    promocodes = models.ManyToManyField(Promocode, null=True)
 
     def get_absolute_url(self):
          return reverse('order_detail', args=[str(self.id)])
