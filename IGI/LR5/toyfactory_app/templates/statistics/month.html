@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if toy_types %}
+    <p>Категории игрушек</p>
+        {% for toy_type in toy_types %}
+        <a href="{% url 'statistics_month_detail' toy_type.pk %}">{{toy_type.name}}</a>
+        {% endfor %}
+    {% else %}
+        <p>Список игрушек пуст.</p>
+    {% endif %}
+{% endblock %} 

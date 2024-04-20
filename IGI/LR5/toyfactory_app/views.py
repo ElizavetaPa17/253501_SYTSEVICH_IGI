@@ -461,35 +461,20 @@ def statistics_profit_view(request):
     # годовой отчет поступлений от продаж
     # прогноз продаж
     # построение линейного тренда продаж
-    orders = Order.objects.all()
-    toy_types = []
-    dates = []
-    count = []
-    for order in orders:
-        toy_types.append(order.toy.toy_type.name)
-        dates.append(pd.to_datetime(order.order_date)) 
-        count.append(order.toy_count)
-
-    # Ежемесячные продажи
-    df = pd.DataFrame({
-        'Вид игрушки' : toy_types,
-        'Месяц' : dates
-    })
-
-    df = df.groupby('Вид игрушки').resample('M', on='Месяц').count()
-    df.columns = ['Количество']
-    #print(df)
-
-    df_styled = df.style.background_gradient() 
-    dfi.export(df_styled,"media/images/montly_profit.png")
 
     # Годовой отчет поступлений
+    orders = Order.objects.all()
     orders_profit = []
+    dates = []
     years = []
+    count = []
     for order in orders:
         years.append(order.order_date.year)
+        dates.append(pd.to_datetime(order.order_date)) 
         orders_profit.append(order.total_price)
+        count.append(order.toy_count)
 
+    # Годовой отчет поступлений
     df_year = pd.DataFrame({
         'Года' : years,
         'Прибыль' : orders_profit
@@ -497,7 +482,6 @@ def statistics_profit_view(request):
 
     df_year = df_year.groupby('Года').sum()
     df_year.plot(kind='bar').get_figure().savefig('media/images/yearly_profit.png')
-
 
     trend_dict = dict(zip(dates, count))
     trend_dict = dict(sorted(trend_dict.items()))
@@ -539,5 +523,38 @@ def statistics_profit_view(request):
     plt.grid(True)
     plt.savefig("media/images/forecast.png")
 
-
     return render(request, 'statistics/profit.html')
+
+
+def statistics_month_view(request):
+    toy_types = ToyType.objects.all()
+    return render(request, 'statistics/month.html', {'toy_types' : toy_types})
+
+
+def statistics_month_detail_view(request, pk=None):
+    toy_type = ToyType.objects.all().filter(pk=pk).first()
+    toys = Toy.objects.all().filter(toy_type=toy_type)
+    orders = Order.objects.all()
+    certain_orders = []
+    for order in orders:
+        if order.toy in toys:
+            certain_orders.append(order)
+
+    months = []
+    count = []
+    for order in certain_orders:
+        months.append(order.order_date.month)
+        count.append(order.toy_count)
+
+    trend_dict = dict(zip(months, count))
+    trend_dict = dict(sorted(trend_dict.items()))
+    # Линейный тренд продаж
+    df_trend = pd.DataFrame({
+        'Месяцы' : trend_dict.keys(),
+        'Продажи' : trend_dict.values()
+    })
+
+    df_trend = df_trend.groupby('Месяцы').count()
+    df_trend.plot(kind='bar').get_figure().savefig('media/images/month_orders.png')
+
+    return render(request, 'statistics/month_detail.html')
