@@ -7,12 +7,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.hashers import make_password, check_password
 from .models import *
 from .forms import *
 from .constants import *
 import pandas as pd
 import datetime
-from django.contrib.auth.hashers import make_password, check_password
+import requests
+import numpy as np
+import dataframe_image as dfi
+import seaborn as sns
+import matplotlib.pyplot as plt
+from statsmodels.tsa.arima.model import ARIMA
 
 # Create your views here.
 def index(request):
@@ -26,8 +32,16 @@ def index(request):
     #    user.set_password('bz718nqf45')
     ##    print(user.password)
     #    user.save()
+
+    # APIS
+# https://catfact.ninja/fact
+# Google Translate API free
     
-    return render(request, 'index.html', {'news' : news})
+    res = requests.get("https://catfact.ninja/fact").json()
+    cat_fact = res['fact']
+
+    return render(request, 'index.html', {'news' : news,
+                                          'cat_fact' : cat_fact})
 
 def news_list_view(request):
     news_list = News.objects.all()
@@ -345,6 +359,7 @@ def statistics_price_view(request):
     return render(request, 'statistics/price_list.html', {'toys' : toys})
 
 
+@login_required
 def statistics_clients_view(request):
     clients = Client.objects.all()
     towns = []
@@ -383,6 +398,7 @@ def statistics_clients_view(request):
                                                                  'min_age' : min_age})
 
 
+@login_required
 def statistics_toy_view(request):
     toys = Toy.objects.all()
 
@@ -437,3 +453,91 @@ def statistics_toy_view(request):
                                                          'popular_toy_count' : order_map[popular_toy],
                                                          'nonpopular_toy' : nonpopular_toy,
                                                          'nonpopular_toy_count' : order_map[nonpopular_toy]})
+
+
+@login_required
+def statistics_profit_view(request):
+    # ежемесячный объем продаж игрушек каждого вида
+    # годовой отчет поступлений от продаж
+    # прогноз продаж
+    # построение линейного тренда продаж
+    orders = Order.objects.all()
+    toy_types = []
+    dates = []
+    count = []
+    for order in orders:
+        toy_types.append(order.toy.toy_type.name)
+        dates.append(pd.to_datetime(order.order_date)) 
+        count.append(order.toy_count)
+
+    # Ежемесячные продажи
+    df = pd.DataFrame({
+        'Вид игрушки' : toy_types,
+        'Месяц' : dates
+    })
+
+    df = df.groupby('Вид игрушки').resample('M', on='Месяц').count()
+    df.columns = ['Количество']
+    #print(df)
+
+    df_styled = df.style.background_gradient() 
+    dfi.export(df_styled,"media/images/montly_profit.png")
+
+    # Годовой отчет поступлений
+    orders_profit = []
+    years = []
+    for order in orders:
+        years.append(order.order_date.year)
+        orders_profit.append(order.total_price)
+
+    df_year = pd.DataFrame({
+        'Года' : years,
+        'Прибыль' : orders_profit
+    })
+
+    df_year = df_year.groupby('Года').sum()
+    df_year.plot(kind='bar').get_figure().savefig('media/images/yearly_profit.png')
+
+
+    trend_dict = dict(zip(dates, count))
+    trend_dict = dict(sorted(trend_dict.items()))
+    # Линейный тренд продаж
+    df_trend = pd.DataFrame({
+        'Даты' : trend_dict.keys(),
+        'Продажи' : trend_dict.values()
+    })
+
+    plt.clf()
+    plt.cla()
+    plt.plot(df_trend['Даты'], df_trend['Продажи'])
+    plt.title('Продажи с трендом')
+    plt.xlabel('Дата')
+    plt.ylabel('Продажи')
+    plt.savefig("media/images/trend.png")
+
+    # Прогноз продаж
+    df_fr = pd.DataFrame({
+        'Даты' : [date for date in dates],
+        'Прибыль' : orders_profit
+    })
+
+    model = ARIMA(df_fr['Прибыль'], order=(1, 1, 1))
+    model_fit = model.fit()
+
+    forecast_future = model_fit.forecast(steps=12)
+    future_dates = pd.date_range(start='2024-05-01', periods=12, freq='M')
+    forecast_df = pd.DataFrame({'Дата': future_dates, 'Прогноз прибыли': forecast_future})
+    df_fr = pd.concat([df_fr, forecast_df], ignore_index=True)
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(df_fr.index[:-12], df_fr['Прибыль'][:-12], label='Исходные данные')
+    plt.plot(df_fr.index[-12:], df_fr['Прогноз прибыли'][-12:], label='Прогноз')
+    plt.title('Прогноз прибыли')
+    plt.xlabel('Дата (по месяцам)')
+    plt.ylabel('Прибыль')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig("media/images/forecast.png")
+
+
+    return render(request, 'statistics/profit.html')

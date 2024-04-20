@@ -47,6 +47,7 @@ urlpatterns = [
     re_path(r'^statistics/price_list$',         views.statistics_price_view, name='statistics_price_list'),
     re_path(r'^statistics/clients_list$',       views.statistics_clients_view, name='statistics_clients'),
     re_path(r'^statistics/toys_list$',          views.statistics_toy_view,   name='statistics_toys'),
+    re_path(r'^statistics/profit$',             views.statistics_profit_view, name='statistics_profit'),
     path('policy/',     views.policy_view,     name='policy'),
     path('vacations/',  views.vacations_view,  name='vacations'),
     path('termines/',   views.termines_view,   name='termines'),

@@ -9,4 +9,7 @@
     {% else %}
         <h1>Новостей нет.</h1>
     {% endif %}
+    {% if cat_fact %}
+        <p>Интересный факт о котах: {{cat_fact}}</p>
+    {% endif %}
 {% endblock %} 
