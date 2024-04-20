@@ -9,7 +9,16 @@
     {% else %}
         <h1>Новостей нет.</h1>
     {% endif %}
+    {% if cat_fact or dog_image %}
+        <p>Уголок любителя собак и кошек</p>
+    {% endif%}
     {% if cat_fact %}
         <p>Интересный факт о котах: {{cat_fact}}</p>
+    {% endif %}
+    {% if dog_image %}
+        <p>Фото песика для поднятия настроения</p>
+        <img src="{{ dog_image }}"
+            width="500"
+            height="400">
     {% endif %}
 {% endblock %} 

@@ -19,6 +19,7 @@ import dataframe_image as dfi
 import seaborn as sns
 import matplotlib.pyplot as plt
 from statsmodels.tsa.arima.model import ARIMA
+from deep_translator import GoogleTranslator
 
 # Create your views here.
 def index(request):
@@ -27,21 +28,17 @@ def index(request):
     if news_list:
         news = news_list[0]
 
-    #users = User.objects.all()
-    #for user in users:
-    #    user.set_password('bz718nqf45')
-    ##    print(user.password)
-    #    user.save()
-
-    # APIS
-# https://catfact.ninja/fact
-# Google Translate API free
-    
+    # Используем наше API
     res = requests.get("https://catfact.ninja/fact").json()
     cat_fact = res['fact']
+    cat_fact = GoogleTranslator(source='auto', target='ru').translate(cat_fact)
+
+    res = requests.get("https://dog.ceo/api/breeds/image/random").json()
+    dog_image = res['message']
 
     return render(request, 'index.html', {'news' : news,
-                                          'cat_fact' : cat_fact})
+                                          'cat_fact' : cat_fact,
+                                          'dog_image' : dog_image})
 
 def news_list_view(request):
     news_list = News.objects.all()
