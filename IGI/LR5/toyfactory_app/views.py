@@ -3,11 +3,12 @@ from django.views import generic
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.models import Permission, Group
 from .models import *
 from .forms import *
 from .constants import *
@@ -87,7 +88,7 @@ def feedbacks_view(request):
                                                    'required_role' : CLIENT })
 
 
-@login_required
+@permission_required("feedback.add_feedback")
 def add_feedback_view(request):
     errors = None
     if request.method == 'POST':
@@ -102,7 +103,6 @@ def add_feedback_view(request):
     feedback_form = FeedbackForm()
     return render(request, 'feedbacks/form.html', {'feedback_form' : feedback_form, 
                                                    'errors' : errors})
-
 
 def policy_view(request):
     return render(request, 'policy.html')
@@ -123,9 +123,29 @@ def vacations_view(request):
 
 
 def about_view(request):
-    company = Company.objects.all()
-    company = company[0]
+    company = Company.objects.all().first()
     return render(request, 'about.html', {'company' : company})
+
+
+@login_required
+def about_employees_view(request):
+    employees_list = Employee.objects.all()
+    paginator = Paginator(employees_list, 5)
+    page = request.GET.get('page')
+    try:
+        employees = paginator.page(page)
+    except PageNotAnInteger:
+        employees = paginator.page(1)
+    except EmptyPage:
+        temployees = paginator.page(paginator.num_pages)
+    return render(request, 'toyfactory_app/employee_list.html', {'employee_list' : employees})
+
+
+@login_required
+def about_employee_detail_view(request, pk=None):
+    employee = Employee.objects.all().filter(pk=pk).first()
+    print(employee)
+    return render(request, 'toyfactory_app/employee_detail.html', {'employee' : employee})
 
 
 def termines_view(request):
@@ -148,6 +168,8 @@ def register_client_view(request):
         if client_form.is_valid():
             client = client_form.save(commit=False)
             client.save()
+            client_group = Group.objects.get(name='Client')
+            client_group.user_set.add(client)
             return HttpResponseRedirect(reverse('login_client'))
         else:
             errors = client_form.errors
@@ -269,6 +291,8 @@ def toy_details_view(request, pk):
     return render(request, 'toy/detail.html', { 'toy' : toy ,
                                                 'required_role' : CLIENT})
 
+
+@permission_required("order.add_order")
 def create_order_view(request, pk):
     errors = None
     if request.method == "POST":
@@ -293,6 +317,7 @@ def create_order_view(request, pk):
     pass
 
 
+@login_required
 def employee_clients_list_view(request):
     clients = UsersRelations.objects.all().filter(user_owner=request.user)
 
@@ -309,6 +334,7 @@ def employee_clients_list_view(request):
                                                         'page' : page})
 
 
+@permission_required("client.view_client")
 def client_orders_view(request, pk=None):
     client = Client.objects.all().filter(pk=pk).first()
     orders = Order.objects.all().filter(client=client)
@@ -327,6 +353,7 @@ def client_orders_view(request, pk=None):
                                                           'page' : page})
 
 
+@permission_required("order.view_order")
 def my_orders_view(request):
     client = Client.objects.all().filter(pk=request.user.pk).first()
     orders = Order.objects.all().filter(client=client)
@@ -345,12 +372,12 @@ def my_orders_view(request):
                                                       'page' : page})
 
 
-@login_required
+@permission_required("employee.add_employee")
 def statistics_view(request):
     return render(request, 'statistics/index.html')
 
 
-@login_required
+@permission_required("employee.add_employee")
 def statistics_price_view(request):
     toys = Toy.objects.all()
     return render(request, 'statistics/price_list.html', {'toys' : toys})
@@ -395,7 +422,7 @@ def statistics_clients_view(request):
                                                                  'min_age' : min_age})
 
 
-@login_required
+@permission_required("employee.add_employee")
 def statistics_toy_view(request):
     toys = Toy.objects.all()
 
@@ -452,7 +479,7 @@ def statistics_toy_view(request):
                                                          'nonpopular_toy_count' : order_map[nonpopular_toy]})
 
 
-@login_required
+@permission_required("employee.add_employee")
 def statistics_profit_view(request):
     # ежемесячный объем продаж игрушек каждого вида
     # годовой отчет поступлений от продаж
@@ -523,11 +550,13 @@ def statistics_profit_view(request):
     return render(request, 'statistics/profit.html')
 
 
+@permission_required("employee.add_employee")
 def statistics_month_view(request):
     toy_types = ToyType.objects.all()
     return render(request, 'statistics/month.html', {'toy_types' : toy_types})
 
 
+@permission_required("employee.add_employee")
 def statistics_month_detail_view(request, pk=None):
     toy_type = ToyType.objects.all().filter(pk=pk).first()
     toys = Toy.objects.all().filter(toy_type=toy_type)

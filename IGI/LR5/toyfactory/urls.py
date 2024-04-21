@@ -50,10 +50,12 @@ urlpatterns = [
     re_path(r'^statistics/profit$',             views.statistics_profit_view, name='statistics_profit'),
     re_path(r'^statistics/profit/month$',       views.statistics_month_view, name='statistics_month'),
     re_path(r'^statistics/profit/month/(?P<pk>\d+)$', views.statistics_month_detail_view, name='statistics_month_detail'),
-    path('policy/',     views.policy_view,     name='policy'),
-    path('vacations/',  views.vacations_view,  name='vacations'),
-    path('termines/',   views.termines_view,   name='termines'),
-    path('about/',      views.about_view,      name='about')
+    re_path(r'^policy/$',     views.policy_view,     name='policy'),
+    re_path(r'^vacations/$',  views.vacations_view,  name='vacations'),
+    re_path(r'^termines/$',   views.termines_view,   name='termines'),
+    re_path(r'^about/$',      views.about_view,      name='about'),
+    re_path(r'^about/employees$',             views.about_employees_view,       name='employees_list'),
+    re_path(r'^about/employees/(?P<pk>\d+)$', views.about_employee_detail_view, name='employee_detail')
 ]
 
 if settings.DEBUG:

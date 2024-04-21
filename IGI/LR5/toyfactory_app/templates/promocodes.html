@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+    {% if promocodes %}
     <h1>Промокоды</h1>
     <h3>Виды</h3>
     <ul>
@@ -20,4 +21,7 @@
             </div>
         {% endfor %}
         {% include "pagination.html" with page=promocodes %}
+    {% else %}
+        <p>Промокоды отсутствуют.</p>
+    {% endif %}
 {% endblock %}

@@ -6,7 +6,7 @@
     <ul>
         {% for employee in employee_list %}
             <li>
-                <a href="{% url 'employee-detail' employee.pk %}">{{employee.name}}</a>
+                <a href="{% url 'employee_detail' employee.pk %}">{{ employee.first_name }} {{employee.last_name}}</a>
             </li>
         {% endfor %}
     </ul>

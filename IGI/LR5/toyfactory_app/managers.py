@@ -7,6 +7,11 @@ class UserManager(BaseUserManager):
 
         if not email:
             raise ValueError('The Email must be set')
+        
+        user = User.objects.all().filter(first_name=extra_fields['first_name'], last_name=extra_fields['last_name'])
+        if user:
+            raise ValueError('The first and last name combination must be unique')
+
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)

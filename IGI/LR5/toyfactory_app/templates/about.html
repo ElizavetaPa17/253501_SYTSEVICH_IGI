@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+    {% if company %}
     <h1>О компании</h1>
     <p>Наименование: {{ company.name }}</p>
     <figure>
@@ -11,4 +12,8 @@
     <p>Адрес: {{ company.address }}</p>
     <p>Почта: {{ company.email }}</p>
     <p>Дата основания: {{ company.creation }}</p>
+    {% else %}
+        <p>Информация о компании отсутствует.</p>
+    {% endif %}
+    <a href="{% url 'employees_list' %}">Список сотрудников</a>
 {% endblock %}

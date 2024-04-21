@@ -8,17 +8,17 @@ from django.urls import reverse
 
 class User(AbstractUser):
     username = None
-    role = models.CharField(max_length=50, choices=USER_TYPE_CHOICES)
+    role      = models.CharField(max_length=50, choices=USER_TYPE_CHOICES)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    is_staff  = models.BooleanField(default=False)
     first_name = models.CharField(max_length=50, unique=True)
     last_name = models.CharField(max_length=50, unique=True)
-    email = models.EmailField(unique=True, db_index=True)
-    phone = models.CharField(max_length=20, unique=True)
-    town = models.CharField(max_length=100)
-    address = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='images/', blank=True, null=True, default='images/no_photo.png')
-    birthday = models.DateField()
+    email     = models.EmailField(unique=True, db_index=True)
+    phone     = models.CharField(max_length=20, unique=True)
+    town      = models.CharField(max_length=100, default='unknown')
+    address   = models.CharField(max_length=100, default='unknown')
+    image     = models.ImageField(upload_to='images/', blank=True, null=True, default='images/no_photo.png')
+    birthday  = models.DateField()
 
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'
@@ -38,6 +38,7 @@ class Employee(User):
     def save(self, *args, **kwargs):
         if not self.pk:
             self.role = EMPLOYEE
+
         return super().save(*args, **kwargs)
 
 
@@ -57,19 +58,16 @@ class UsersRelations(models.Model):
     user = models.ForeignKey(User, related_name='self_user', on_delete=models.CASCADE)
     user_owner = models.ForeignKey(User, related_name='owner', on_delete=models.CASCADE)
 
-# Create your models here.
 class Company(models.Model):
     name  = models.CharField(max_length=150)
     logo  = models.ImageField(upload_to='images/', null=True, blank=True)
-    video = models.FileField(null=True, blank=True,
-                             validators=[FileExtensionValidator(allowed_extensions=['MOV', 'avi', 'mp4', 'webm', 'mkv'])])
     address  = models.CharField(max_length=150)
     email    = models.EmailField()
     creation = models.DateField()
 
 
 class News(models.Model):
-    title = models.CharField(max_length=150)
+    title = models.CharField(max_length=150, unique=True)
     image = models.ImageField(upload_to='images/', blank=True, null=True)
     description = models.CharField(max_length=150)
 
@@ -81,7 +79,7 @@ class News(models.Model):
 
 
 class TermsDictionary(models.Model):
-    question = models.TextField()
+    question = models.TextField(unique=True)
     answer = models.TextField()
     date = models.DateField()
 
@@ -101,7 +99,7 @@ class Vacation(models.Model):
 
 
 class Feedback(models.Model):
-    user = models.ForeignKey(User, related_name='author', on_delete=models.CASCADE)
+    user = models.OneToOneField(User, unique=True, related_name='author', on_delete=models.CASCADE)
     title = models.CharField(max_length=150)
     mark = models.IntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(5)])
     description = models.TextField()
@@ -124,7 +122,7 @@ class ToyType(models.Model):
 
 class Toy(models.Model):
     name = models.CharField(max_length=150, unique=True)
-    price = models.FloatField()
+    price = models.FloatField(validators=[MinValueValidator(0)])
     toy_type = models.ForeignKey(ToyType, null=True, on_delete=models.SET_NULL)
     image = models.ImageField(upload_to='images/', blank=True, null=True, default='images/no_photo.png')
     produced = models.BooleanField()
@@ -151,8 +149,8 @@ class PromocodeType(models.Model):
 
 
 class Promocode(models.Model):
-    name = models.CharField(max_length=150)
-    discount  = models.FloatField()
+    name = models.CharField(max_length=150, unique=True)
+    discount  = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
     promocode_type = models.ForeignKey(PromocodeType, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
@@ -166,10 +164,7 @@ class Order(models.Model):
     toy = models.ForeignKey(Toy, null=True, on_delete=models.SET_NULL)
     toy_count = models.IntegerField(validators=[MinValueValidator(1)])
     total_price = models.IntegerField(default=0)
-    promocodes = models.ManyToManyField(Promocode, null=True)
-
-    def get_absolute_url(self):
-         return reverse('order_detail', args=[str(self.id)])
+    promocodes = models.ForeignKey(Promocode, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return str(self.pk)

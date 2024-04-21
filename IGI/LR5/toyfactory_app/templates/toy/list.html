@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+    {% if ttypes %}
     <h1>Игрушки</h1>
     <h3>Виды</h3>
     <ul>
@@ -33,6 +34,9 @@
             </div>
         {% endfor %}
         {% include "pagination.html" with page=toys %}
+    {% else %}
+        <p>На данный момент игрушки отсутствуют.</p>
+    {% endif %}
     {% if user.is_authenticated and pickuppoints %}
         <p>Точки самовывоза: </p>
         <ul>
