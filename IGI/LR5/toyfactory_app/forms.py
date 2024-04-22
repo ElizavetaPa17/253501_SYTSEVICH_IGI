@@ -50,7 +50,7 @@ class ClientRegistrationForm(UserCreationForm):
 
     def clean_phone(self):
         phone = self.cleaned_data['phone']
-        if phone and not re.match(r"^\+[\d]{3}\s*\([\d]{2}\)\s*[\d]{3}-[\d]{2}-[\d]{2}$", phone):
+        if phone and not re.match(r"^\+375\s{1}\([\d]{2}\)\s{1}[\d]{3}-[\d]{2}-[\d]{2}$", phone):
             raise forms.ValidationError('Некорректный формат номера')
         elif phone and Client.objects.filter(phone=phone).count():
             raise forms.ValidationError("Данный номер уже в использовании.")
@@ -106,7 +106,7 @@ class ProfileUpdateForm(forms.ModelForm):
     town = forms.CharField(label='Город', widget=forms.TextInput)
     address = forms.CharField(label='Адрес', widget=forms.TextInput)
 
-    image = forms.ImageField(label='Фото')
+    image = forms.ImageField(label='Фото', required=False)
 
     password1 = forms.CharField(
         label='Пароль',
@@ -132,9 +132,10 @@ class ProfileUpdateForm(forms.ModelForm):
 
     def clean_phone(self):
         phone = self.cleaned_data['phone']
-        if phone and not re.match(r"^\+[\d]{3}\s*\([\d]{2}\)\s*[\d]{3}-[\d]{2}-[\d]{2}$", phone):
+        if phone and not re.match(r"^\+375\s{1}\([\d]{2}\)\s{1}[\d]{3}-[\d]{2}-[\d]{2}$", phone):
             raise forms.ValidationError('Некорректный формат номера')
         return phone
+
 
 class EmployeeLoginForm(forms.Form):
     first_name = forms.CharField(
@@ -162,7 +163,7 @@ class FeedbackForm(forms.ModelForm):
     title = forms.CharField(max_length=150, label='Заголовок')   
     mark = forms.IntegerField(label='Оценка',
                               validators=[MinValueValidator(1), MaxValueValidator(5)])
-    description = forms.CharField(widget=forms.Textarea(attrs={"rows":"5"}))
+    description = forms.CharField(widget=forms.Textarea(attrs={"rows":"5"}), label='Описание')
 
     class Meta:
         model = Feedback

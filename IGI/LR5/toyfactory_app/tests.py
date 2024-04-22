@@ -1,12 +1,14 @@
 from django.test import TestCase
 from django.db.utils import IntegrityError
-import datetime
-from toyfactory_app.constants import *
-from toyfactory_app.models import  *
 from django.db import transaction
 
-# Create your tests here.
+from toyfactory_app.constants import *
+from toyfactory_app.models import  *
+from toyfactory_app.forms import *
 
+import datetime
+
+# Тесты к моделям
 class EmployeeModelTest(TestCase):
 
     @classmethod
@@ -410,3 +412,211 @@ class OrderModelTest(TestCase):
         self.assertEquals(Order.objects.get(pk=1).toy_count, 10)
         self.assertEquals(Order.objects.get(pk=1).total_price, 10*Toy.objects.get(pk=1).price)
         self.assertEquals(Order.objects.get(pk=1).promocodes, Promocode.objects.get(pk=1))
+
+
+# Тесты к формам
+class TestClientRegistrationForm(TestCase):
+    def test_form_labels(self):
+        form = ClientRegistrationForm()
+        self.assertEquals(form.fields['phone'].label, 'Телефон')
+        self.assertEquals(form.fields['town'].label, 'Город')
+        self.assertEquals(form.fields['address'].label, 'Адрес')
+        self.assertEquals(form.fields['first_name'].label, 'Имя')
+        self.assertEquals(form.fields['last_name'].label, 'Фамилия')
+        self.assertEquals(form.fields['email'].label, 'Почта')
+        self.assertEquals(form.fields['password1'].label, 'Пароль')
+        self.assertEquals(form.fields['password2'].label, 'Подтверждение пароля')
+
+    def test_form_phone_format(self):
+        form = ClientRegistrationForm({ 'first_name' : 'Паша',
+                                        'last_name'  : 'Григоренко',
+                                        'email'      : "pasha@email.com",
+                                        'phone'      : '375 (44) 431-21-21',
+                                        'town'       : 'Minsk',
+                                        'address'    : 'ул. Якуба Коласа',
+                                        'birthday'    : datetime.date(year=2001, day=21, month=2),
+                                        'password1'  : "bzjswkw312dmwdwd",
+                                        'password2'  : 'bzjswkw312dmwdwd'})
+        self.assertFalse(form.is_valid())
+
+    def test_form_birthay(self):
+        form = ClientRegistrationForm({ 'first_name' : 'Паша',
+                                        'last_name'  : 'Григоренко',
+                                        'email'      : "pasha@email.com",
+                                        'phone'      : '+375 (44) 431-21-21',
+                                        'town'       : 'Minsk',
+                                        'address'    : 'ул. Якуба Коласа',
+                                        'birthday'   :  datetime.date.today(),
+                                        'password1'  : "123",
+                                        'password2'  : '123'})
+        self.assertFalse(form.is_valid())
+
+    def test_form_passwords(self):
+        form = ClientRegistrationForm({ 'first_name' : 'Паша',
+                                        'last_name'  : 'Григоренко',
+                                        'email'      : "pasha@email.com",
+                                        'phone'      : '+375 (44) 431 21-21',
+                                        'town'       : 'Minsk',
+                                        'address'    : 'ул. Якуба Коласа',
+                                        'birthday'    :  datetime.date(year=2001, day=21, month=2),
+                                        'password1'  : "091",
+                                        'password2'  : '123'})
+        self.assertFalse(form.is_valid())
+
+    def test_form_fields_uniqueness(self):
+        Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.date(year=2001, month=2, day=1))
+
+        form = ClientRegistrationForm({ 'first_name' : 'Петя',
+                                        'last_name'  : 'Васечкин',
+                                        'email'      : "pasha@email.com",
+                                        'phone'      : '+375 (44) 431 21-21',
+                                        'town'       : 'Minsk',
+                                        'address'    : 'ул. Якуба Коласа',
+                                        'birthday'    :  datetime.date(year=2001, day=21, month=2),
+                                        'password1'  : "123",
+                                        'password2'  : '123'})
+        self.assertFalse(form.is_valid())
+
+        form = ClientRegistrationForm({ 'first_name' : 'Маша',
+                                        'last_name'  : 'Мартынова',
+                                        'email'      : "petyavasechkin@email.com",
+                                        'phone'      : '+375 (44) 431 21-21',
+                                        'town'       : 'Minsk',
+                                        'address'    : 'ул. Якуба Коласа',
+                                        'birthday'    :  datetime.date(year=2001, day=21, month=2),
+                                        'password1'  : "123",
+                                        'password2'  : '123'})
+        self.assertFalse(form.is_valid())
+
+        form = ClientRegistrationForm({ 'first_name' : 'Маша',
+                                        'last_name'  : 'Мартынова',
+                                        'email'      : "masha@email.com",
+                                        'phone'      : '+375 (44) 781-54-32',
+                                        'town'       : 'Minsk',
+                                        'address'    : 'ул. Якуба Коласа',
+                                        'birthday'    :  datetime.date(year=2001, day=21, month=2),
+                                        'password1'  : "123",
+                                        'password2'  : '123'})
+        self.assertFalse(form.is_valid())
+
+class TestClientLoginForm(TestCase):
+    def test_form_labels(self):
+        form = ClientLoginForm()
+        self.assertEquals(form.fields['first_name'].label, 'Имя')
+        self.assertEquals(form.fields['last_name'].label, 'Фамилия')
+        self.assertEquals(form.fields['password1'].label, 'Пароль')
+
+
+class TestProfileUpdateForm(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        form = ClientRegistrationForm({ 'first_name' : 'Петя',
+                                 'last_name'  : 'Васечкин',
+                                 'email'      : "pasha@email.com",
+                                 'phone'      : '+375 (44) 431-21-21',
+                                 'town'       : 'Minsk',
+                                 'address'    : 'ул. Якуба Коласа',
+                                 'birthday'    :  datetime.date(year=2001, day=21, month=2),
+                                 'password1'  : "12dewkmd2390ek",
+                                 'password2'  : '12dewkmd2390ek'})
+
+        form.save()
+
+    def test_form_labels(self):
+        form = ProfileUpdateForm()
+        self.assertEquals(form.fields['phone'].label, 'Телефон')
+        self.assertEquals(form.fields['town'].label, 'Город')
+        self.assertEquals(form.fields['address'].label, 'Адрес')
+        self.assertEquals(form.fields['image'].label, 'Фото')
+        self.assertEquals(form.fields['password1'].label, 'Пароль')
+        self.assertEquals(form.fields['password2'].label, 'Подтверждение пароля')
+
+    def test_form_phone_format(self):
+        form = ProfileUpdateForm({ 'phone'      : '+375 (44) 31-21-21',
+                                   'town'       : 'Minsk',
+                                   'address'    : 'ул. Якуба Коласа',
+                                   'password1'  : "bzjswkw312dmwdwd",
+                                   'password2'  : 'bzjswkw312dmwdwd'},
+                                   instance=Client.objects.get(pk=1))
+        self.assertFalse(form.is_valid())
+
+        form = ProfileUpdateForm({ 'phone'      : '+375 (44) 421-21-21',
+                                   'town'       : 'Minsk',
+                                   'address'    : 'ул. Якуба Коласа',
+                                   'password1'  : "bzjswkw312dmwdwd",
+                                   'password2'  : 'bzjswkw312dmwdwd',
+                                   'instance'   : Client.objects.get(pk=1)})
+        print(form.errors)
+        self.assertTrue(form.is_valid())
+
+    def test_form_passwords(self):
+        form = ProfileUpdateForm({ 'phone'      : '+375 (44) 31-21-21',
+                                   'town'       : 'Minsk',
+                                   'address'    : 'ул. Якуба Коласа',
+                                   'password1'  : "bzjswkw312dqwok",
+                                   'password2'  : 'bzjswkw312dmwdwd'},
+                                   instance=Client.objects.get(pk=1))
+        self.assertFalse(form.is_valid())
+
+
+class TestEmployeeLoginForm(TestCase):
+    def test_form_labels(self):
+        form = EmployeeLoginForm()
+        self.assertEquals(form.fields['first_name'].label, 'Имя')
+        self.assertEquals(form.fields['last_name'].label, 'Фамилия')
+        self.assertEquals(form.fields['password1'].label, 'Пароль')
+
+class TestFeedbackForm(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        form = ClientRegistrationForm({ 'first_name' : 'Петя',
+                                 'last_name'  : 'Васечкин',
+                                 'email'      : "pasha@email.com",
+                                 'phone'      : '+375 (44) 431-21-21',
+                                 'town'       : 'Minsk',
+                                 'address'    : 'ул. Якуба Коласа',
+                                 'birthday'    :  datetime.date(year=2001, day=21, month=2),
+                                 'password1'  : "12dewkmd2390ek",
+                                 'password2'  : '12dewkmd2390ek'})
+
+        form.is_valid()
+        form.save()
+
+    def test_form_labels(self):
+        form = FeedbackForm()
+        self.assertEquals(form.fields['title'].label, 'Заголовок')
+        self.assertEquals(form.fields['mark'].label, 'Оценка')
+        self.assertEquals(form.fields['description'].label, 'Описание')
+
+    def test_mark_corectness(self):
+        form = FeedbackForm({'title' : 'Интересная фабрика!',
+                             'mark' : 4,
+                             'description' : 'Спасибо!'})
+        self.assertTrue(form.is_valid())
+
+        form = FeedbackForm({'title' : 'Интересная фабрика!',
+                             'mark' : -1,
+                             'description' : 'Спасибо!'})
+        self.assertFalse(form.is_valid())
+
+        form = FeedbackForm({'title' : 'Интересная фабрика!',
+                             'mark' : 7,
+                             'description' : 'Спасибо!'})
+        
+        self.assertFalse(form.is_valid())
+
+    def test_title_uniqueness(self):
+        form = FeedbackForm({'title' : 'Интересная фабрика!',
+                             'mark' : 4,
+                             'description' : 'Спасибо!'})
+        feedback_form = form.save(commit=False)
+        feedback_form = Client.objects.get(pk=1)
+        feedback_form.date = datetime.date.today()
+        
+        feedback_form.save()
