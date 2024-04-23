@@ -29,6 +29,7 @@ class ToyAdmin(admin.ModelAdmin):
 class ClientAdmin(admin.ModelAdmin):
     add_fieldsets = ('role', 'first_name', 'last_name', 'email', 'phone', 'address', 'birthday')
     list_filter = ('birthday', 'town',)
+    filter_horizontal = ('groups', 'user_permissions',)
 
 
 class PromocodeAdmin(admin.ModelAdmin):

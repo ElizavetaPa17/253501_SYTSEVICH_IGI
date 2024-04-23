@@ -4,9 +4,10 @@ from django.contrib.auth.models import AbstractUser
 from .managers import *
 from .constants import *
 from django.urls import reverse
+from django.contrib.auth.models import PermissionsMixin
 
 
-class User(AbstractUser):
+class User(AbstractUser, PermissionsMixin):
     username = None
     role      = models.CharField(max_length=50, choices=USER_TYPE_CHOICES)
     is_active = models.BooleanField(default=True)

@@ -88,7 +88,7 @@ def feedbacks_view(request):
                                                    'required_role' : CLIENT })
 
 
-@permission_required("feedback.add_feedback")
+@permission_required("toyfactory_app.add_feedback", login_url='/account/login_client')
 def add_feedback_view(request):
     errors = None
     if request.method == 'POST':
@@ -127,7 +127,7 @@ def about_view(request):
     return render(request, 'about.html', {'company' : company})
 
 
-@login_required
+@login_required(login_url='/account/login_client')
 def about_employees_view(request):
     employees_list = Employee.objects.all()
     paginator = Paginator(employees_list, 5)
@@ -141,7 +141,7 @@ def about_employees_view(request):
     return render(request, 'toyfactory_app/employee_list.html', {'employee_list' : employees})
 
 
-@login_required
+@login_required(login_url='/account/login_client')
 def about_employee_detail_view(request, pk=None):
     employee = Employee.objects.all().filter(pk=pk).first()
     print(employee)
@@ -228,7 +228,7 @@ def login_employee_view(request):
                                                             'errors' : errors, 
                                                             'error' : error})
 
-@login_required
+@login_required(login_url='/account/login_client')
 def update_profile_view(request, pk):
     errors = None
     if request.method == "POST":
@@ -243,13 +243,13 @@ def update_profile_view(request, pk):
                                                             'errors' : errors})
 
 
-@login_required
+@login_required(login_url='/account/login_client')
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse('index'))
 
 
-@login_required
+@login_required(login_url='/account/login_client')
 def profile_view(request, pk):
     return render(request, 'accounts/profile.html', {'user' : request.user})
 
@@ -292,7 +292,7 @@ def toy_details_view(request, pk):
                                                 'required_role' : CLIENT})
 
 
-@permission_required("order.add_order")
+@permission_required("toyfactory_app.add_order", login_url="/account/login_client")
 def create_order_view(request, pk):
     errors = None
     if request.method == "POST":
@@ -314,10 +314,8 @@ def create_order_view(request, pk):
     return render(request, 'toy/create_order.html', {'order_form' :  order_form,
                                                      'errors' : errors})
 
-    pass
 
-
-@login_required
+@permission_required("toyfactory_app.view_client", login_url="/account/login_employee")
 def employee_clients_list_view(request):
     clients = UsersRelations.objects.all().filter(user_owner=request.user)
 
@@ -334,7 +332,7 @@ def employee_clients_list_view(request):
                                                         'page' : page})
 
 
-@permission_required("client.view_client")
+@permission_required("toyfactory_app.view_order", login_url="/account/login_employee")
 def client_orders_view(request, pk=None):
     client = Client.objects.all().filter(pk=pk).first()
     orders = Order.objects.all().filter(client=client)
@@ -353,7 +351,7 @@ def client_orders_view(request, pk=None):
                                                           'page' : page})
 
 
-@permission_required("order.view_order")
+@permission_required("toyfactory_app.view_order", login_url='/account/login_client')
 def my_orders_view(request):
     client = Client.objects.all().filter(pk=request.user.pk).first()
     orders = Order.objects.all().filter(client=client)
@@ -372,18 +370,18 @@ def my_orders_view(request):
                                                       'page' : page})
 
 
-@permission_required("employee.add_employee")
+@permission_required("toyfactory_app.add_employee", login_url='/account/login_employee')
 def statistics_view(request):
     return render(request, 'statistics/index.html')
 
 
-@permission_required("employee.add_employee")
+@permission_required("toyfactory_app.add_employee", login_url='/account/login_employee')
 def statistics_price_view(request):
     toys = Toy.objects.all()
     return render(request, 'statistics/price_list.html', {'toys' : toys})
 
 
-@login_required
+@permission_required("toyfactory_app.add_employee", login_url='/account/login_employee')
 def statistics_clients_view(request):
     clients = Client.objects.all()
     towns = []
@@ -422,7 +420,7 @@ def statistics_clients_view(request):
                                                                  'min_age' : min_age})
 
 
-@permission_required("employee.add_employee")
+@permission_required("toyfactory_app.add_employee", login_url='/account/login_employee')
 def statistics_toy_view(request):
     toys = Toy.objects.all()
 
@@ -479,7 +477,7 @@ def statistics_toy_view(request):
                                                          'nonpopular_toy_count' : order_map[nonpopular_toy]})
 
 
-@permission_required("employee.add_employee")
+@permission_required("toyfactory_app.add_employee", login_url='/account/login_employee')
 def statistics_profit_view(request):
     # ежемесячный объем продаж игрушек каждого вида
     # годовой отчет поступлений от продаж
@@ -517,6 +515,7 @@ def statistics_profit_view(request):
 
     plt.clf()
     plt.cla()
+    plt.close()
     plt.plot(df_trend['Даты'], df_trend['Продажи'])
     plt.title('Продажи с трендом')
     plt.xlabel('Дата')
@@ -550,13 +549,13 @@ def statistics_profit_view(request):
     return render(request, 'statistics/profit.html')
 
 
-@permission_required("employee.add_employee")
+@permission_required("toyfactory_app.add_employee", login_url='/account/login_employee')
 def statistics_month_view(request):
     toy_types = ToyType.objects.all()
     return render(request, 'statistics/month.html', {'toy_types' : toy_types})
 
 
-@permission_required("employee.add_employee")
+@permission_required("toyfactory_app.add_employee", login_url='/account/login_employee')
 def statistics_month_detail_view(request, pk=None):
     toy_type = ToyType.objects.all().filter(pk=pk).first()
     toys = Toy.objects.all().filter(toy_type=toy_type)

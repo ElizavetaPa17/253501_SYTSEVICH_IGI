@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from django.db import transaction
+from django.contrib.auth.models import Permission, Group
+from django.contrib.contenttypes.models import ContentType
 
 from toyfactory_app.constants import *
 from toyfactory_app.models import  *
@@ -620,3 +622,1021 @@ class TestFeedbackForm(TestCase):
         feedback_form.date = datetime.date.today()
         
         feedback_form.save()
+
+
+# Тестирование отображений
+class AddFeedbackTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.user_permissions.add(Permission.objects.get(codename='add_feedback'))
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('add_feedback'))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_client'))
+
+    def test_redirect_if_logged_in_but_not_correct_permission(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('add_feedback'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_client'))
+
+    def test_redirect_if_logged_in_with_correct_permission(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('add_feedback'))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('add_feedback'))
+
+        self.assertTemplateUsed(resp, 'feedbacks/form.html')
+
+class AboutEmployeesViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('employees_list'))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_client'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('employees_list'))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('employees_list'))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('employees_list'))
+
+        self.assertTemplateUsed(resp, 'toyfactory_app/employee_list.html')
+
+
+class EmployeeDetailViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('employee_detail', kwargs={"pk" : 2}))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_client'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('employee_detail', kwargs={"pk" : 2}))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('employee_detail', kwargs={"pk" : 2}))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('employee_detail', kwargs={"pk" : 2}))
+
+        self.assertTemplateUsed(resp, 'toyfactory_app/employee_detail.html')
+
+class UpdateProfileViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('update_profile', kwargs={"pk" : 1}))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_client'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('update_profile', kwargs={"pk" : 1}))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('update_profile', kwargs={"pk" : 2}))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('update_profile', kwargs={"pk" : 1}))
+
+        self.assertTemplateUsed(resp, 'accounts/update_profile.html')
+
+
+class LogoutTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('logout'))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_client'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('logout'))
+
+        self.assertEqual(resp.status_code, 302)
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('logout'))
+
+        self.assertEqual(resp.status_code, 302)
+
+
+class ProfileViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.user_permissions.add(Permission.objects.get(codename='add_order'))
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('profile', kwargs={"pk" : 1}))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_client'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('profile', kwargs={"pk" : 1}))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('profile', kwargs={"pk" : 2}))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('profile', kwargs={"pk" : 2}))
+
+        self.assertTemplateUsed(resp, 'accounts/profile.html')
+
+
+class CreateOrderView(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.user_permissions.add(Permission.objects.get(codename='add_order'))
+        client.set_password('123')
+        client.save()
+
+        ToyType.objects.create(name='Машины',
+                               slug='car')
+
+        Toy.objects.create(name='Москвич',
+                           price=300,
+                           toy_type=ToyType.objects.get(pk=1),
+                           produced=True)
+
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('create_order', kwargs={"pk" : 1}))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_client'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('create_order', kwargs={"pk" : 1}))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('create_order', kwargs={"pk" : 1}))
+
+        self.assertEqual(resp.status_code, 302)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('create_order', kwargs={"pk" : 1}))
+
+        self.assertTemplateUsed(resp, 'toy/create_order.html')
+
+
+class EmployeeClientsViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.user_permissions.add(Permission.objects.get(codename='view_client'))
+        employee.set_password('123')
+        employee.save()
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('employee_clients_list'))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('employee_clients_list'))
+
+        self.assertEqual(resp.status_code, 302)
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('employee_clients_list'))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('employee_clients_list'))
+
+        self.assertTemplateUsed(resp, 'clients/my_clients.html')
+
+
+class ClientOrdersViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.user_permissions.add(Permission.objects.get(codename='view_order'))
+        employee.set_password('123')
+        employee.save()
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('client_orders_list', kwargs={"pk" : 1}))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('client_orders_list', kwargs={"pk" : 1}))
+
+        self.assertEqual(resp.status_code, 302)
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('client_orders_list', kwargs={"pk" : 1}))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('client_orders_list', kwargs={"pk" : 1}))
+
+        self.assertTemplateUsed(resp, 'clients/client_orders.html')
+
+
+class MyOrdersView(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.user_permissions.add(Permission.objects.get(codename='view_order'))
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('my_orders_list'))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_client'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('my_orders_list'))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('my_orders_list'))
+
+        self.assertEqual(resp.status_code, 302)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('my_orders_list'))
+
+        self.assertTemplateUsed(resp, 'clients/my_orders.html')
+
+
+class StatisticsViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        employee = User.objects.create_superuser(email='admin@email.com',
+                                                password='123')
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('statistics'))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('statistics'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('statistics'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_admin(self):
+        login = self.client.login(email='admin@email.com', password='123')
+        resp = self.client.get(reverse('statistics'))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(email='admin@email.com', password='123')
+        resp = self.client.get(reverse('statistics'))
+
+        self.assertTemplateUsed(resp, 'statistics/index.html')
+
+
+class StatisticsPriceViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        employee = User.objects.create_superuser(email='admin@email.com',
+                                                password='123')
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('statistics_price_list'))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('statistics_price_list'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('statistics_price_list'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_admin(self):
+        login = self.client.login(email='admin@email.com', password='123')
+        resp = self.client.get(reverse('statistics_price_list'))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(email='admin@email.com', password='123')
+        resp = self.client.get(reverse('statistics_price_list'))
+
+        self.assertTemplateUsed(resp, 'statistics/price_list.html')
+
+    
+class StatisticsClientsViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        employee = User.objects.create_superuser(email='admin@email.com',
+                                                password='123')
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('statistics_clients'))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('statistics_clients'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('statistics_clients'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_admin(self):
+        login = self.client.login(email='admin@email.com', password='123')
+        resp = self.client.get(reverse('statistics_clients'))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(email='admin@email.com', password='123')
+        resp = self.client.get(reverse('statistics_clients'))
+
+        self.assertTemplateUsed(resp, 'statistics/clients_town_list.html')
+
+
+class StatisticsToyViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        employee = User.objects.create_superuser(email='admin@email.com',
+                                                password='123')
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('statistics_toys'))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('statistics_toys'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('statistics_toys'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+class StatisticsProfitViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        employee = User.objects.create_superuser(email='admin@email.com',
+                                                password='123')
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('statistics_profit'))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('statistics_profit'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('statistics_profit'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+class StatisticsMonthViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        employee = User.objects.create_superuser(email='admin@email.com',
+                                                password='123')
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('statistics_month'))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('statistics_month'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('statistics_month'))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_admin(self):
+        login = self.client.login(email='admin@email.com', password='123')
+        resp = self.client.get(reverse('statistics_month'))
+
+        self.assertEqual(resp.status_code, 200)
+
+    def test_uses_correct_template(self):
+        login = self.client.login(email='admin@email.com', password='123')
+        resp = self.client.get(reverse('statistics_month'))
+
+        self.assertTemplateUsed(resp, 'statistics/month.html')
+
+
+class StatisticsMonthDetailViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        employee = Employee.objects.create(first_name="Томас",
+                              last_name='Петров',
+                              email='tomes@email.com',
+                              phone='+375 (29) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        employee.set_password('123')
+        employee.save()
+
+        employee = User.objects.create_superuser(email='admin@email.com',
+                                                 password='123')
+
+        client = Client.objects.create(first_name="Петя",
+                              last_name='Васечкин',
+                              email='petyavasechkin@email.com',
+                              phone='+375 (44) 781-54-32',
+                              town='Минск',
+                              address='ул. Якуба Коласа',
+                              birthday=datetime.datetime.today())
+        client.set_password('123')
+        client.save()
+
+        ToyType.objects.create(name='Машины',
+                               slug='car')
+
+        Toy.objects.create(name='Москвич',
+                           price=300,
+                           toy_type=ToyType.objects.get(pk=1),
+                           produced=True)
+
+    def test_redirect_if_not_logged_in(self):
+        resp = self.client.get(reverse('statistics_month_detail', kwargs={"pk" : 1}))
+
+        self.assertEquals(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_client(self):
+        login = self.client.login(first_name='Петя', last_name='Васечкин', password='123')
+        resp = self.client.get(reverse('statistics_month_detail', kwargs={"pk" : 1}))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+    def test_redirect_if_logged_in_as_employee(self):
+        login = self.client.login(first_name='Томас', last_name='Петров', password='123')
+        resp = self.client.get(reverse('statistics_month_detail', kwargs={"pk" : 1}))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(resp.url.startswith('/account/login_employee'))
+
+
+class IndexTest(TestCase):
+    def test_redirect(self):
+        resp = self.client.get(reverse('index'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'index.html')
+
+
+class NewsListViewTest(TestCase):
+    def test_redirect(self):
+        resp = self.client.get(reverse('news_list'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'news/list.html')
+
+
+class NewsDetailViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        News.objects.create(title='Новое поступление!',
+                            image='../media/images/no_photo.png',
+                            description='Новые игрушки')
+
+    def test_redirect(self):
+        resp = self.client.get(reverse('news_detail', kwargs={'pk':1}))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'news/detail.html')
+
+
+class PromocodesViewTest(TestCase):
+    def test_redirect(self):
+        resp = self.client.get(reverse('promocodes_list'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'promocodes.html')
+
+
+class FeedbackViewTest(TestCase):
+    def test_redirect(self):
+        resp = self.client.get(reverse('feedbacks'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'feedbacks/list.html')
+
+    
+class PolicyViewTest(TestCase):
+    def test_redirect(self):
+        resp = self.client.get(reverse('policy'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'policy.html')
+
+
+class VacationsViewTest(TestCase):
+    def test_redirect(self):
+        resp = self.client.get(reverse('vacations'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'vacations.html')
+
+
+class AboutViewTest(TestCase):
+    def test_redirect(self):
+        resp = self.client.get(reverse('about'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'about.html')
+
+
+class TerminesViewTest(TestCase):
+    def test_redirect(self):
+        resp = self.client.get(reverse('termines'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'termines.html')
+
+
+class RegisterClientViewTest(TestCase):
+    def test_redirect(self):
+        resp = self.client.get(reverse('register_client'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'accounts/register_client.html')
+
+
+class LoginClientViewTest(TestCase):
+    def test_redirect(self):
+        resp = self.client.get(reverse('login_client'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'accounts/login_client.html')
+
+
+class LoginEmployeeViewTest(TestCase):
+    def test_redirect(self):
+        resp = self.client.get(reverse('login_employee'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'accounts/login_employee.html')
+
+
+class ToyListViewTest(TestCase):
+    def test_redirect(self):
+        resp = self.client.get(reverse('toys_list'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'toy/list.html')
+
+
+class ToyListByTypeViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        ToyType.objects.create(name='Машины',
+                               slug='car')
+
+        Toy.objects.create(name='Москвич',
+                           price=300,
+                           toy_type=ToyType.objects.get(pk=1),
+                           produced=True)
+
+    def test_redirect(self):
+        resp = self.client.get(reverse('toys_list'))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'toy/list.html')
+
+
+class ToyDetailViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        ToyType.objects.create(name='Машины',
+                               slug='car')
+
+        Toy.objects.create(name='Москвич',
+                           price=300,
+                           toy_type=ToyType.objects.get(pk=1),
+                           produced=True)
+
+    def test_redirect(self):
+        resp = self.client.get(reverse('toy_detail', kwargs={'pk':1}))
+
+        self.assertEquals(resp.status_code, 200)
+        self.assertTemplateUsed(resp, 'toy/detail.html')
