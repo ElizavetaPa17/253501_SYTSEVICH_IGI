@@ -126,6 +126,28 @@ AUTHENTICATION_BACKENDS = [
     'toyfactory_app.backend.MyBackend',
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': './toyfactory_app.log',
+        },
+    },
+    'loggers': {
+        'root': {
+            'handlers': ['file'],
+            'level': 'INFO'
+        },
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO'
+        },
+    },
+}
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 

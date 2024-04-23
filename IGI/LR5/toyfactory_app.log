@@ -1,0 +1,22 @@
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 1534
+"GET /account/profile/2 HTTP/1.1" 200 1779
+"GET /account/update_profile/2 HTTP/1.1" 200 2361
+"POST /account/update_profile/2 HTTP/1.1" 302 0
+"GET /account/login_client HTTP/1.1" 200 2077
+"POST /account/login_client HTTP/1.1" 200 2182
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory/settings.py changed, reloading.
+Watching for file changes with StatReloader
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory/settings.py changed, reloading.
+Watching for file changes with StatReloader
+Попытка авторизации клиента с несуществующими данными.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Попытка авторизации клиента с несуществующими данными.
+"POST /account/login_client HTTP/1.1" 200 2182
+"POST /account/login_client HTTP/1.1" 200 2182
+Авторизация клиента с почтой tomas@email.com
+"POST /account/login_client HTTP/1.1" 302 0
+"POST /account/login_client HTTP/1.1" 302 0
+"GET / HTTP/1.1" 200 1621
+"GET / HTTP/1.1" 200 1621

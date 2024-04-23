@@ -18,6 +18,8 @@ import requests
 import numpy as np
 import dataframe_image as dfi
 import seaborn as sns
+import traceback
+import logging
 import matplotlib.pyplot as plt
 from statsmodels.tsa.arima.model import ARIMA
 from deep_translator import GoogleTranslator
@@ -30,12 +32,18 @@ def index(request):
         news = news_list[0]
 
     # Используем наше API
-    res = requests.get("https://catfact.ninja/fact").json()
-    cat_fact = res['fact']
-    cat_fact = GoogleTranslator(source='auto', target='ru').translate(cat_fact)
+    cat_fact = None
+    dog_image = None
 
-    res = requests.get("https://dog.ceo/api/breeds/image/random").json()
-    dog_image = res['message']
+    try:
+        res = requests.get("https://catfact.ninja/fact").json()
+        cat_fact = res['fact']
+        cat_fact = GoogleTranslator(source='auto', target='ru').translate(cat_fact)
+
+        res = requests.get("https://dog.ceo/api/breeds/image/random").json()
+        dog_image = res['message']
+    except Exception as ex:
+        logging.error(traceback.format_exc())
 
     return render(request, 'index.html', {'news' : news,
                                           'cat_fact' : cat_fact,
@@ -98,8 +106,11 @@ def add_feedback_view(request):
             feedback.user = request.user
             feedback.date = datetime.date.today()
             feedback.save()
+            logging.error(f'Создание отзыва клиентом {request.user}')
         else:
             errors = feedback_form.errors
+            logging.info(f'Ошибка добавления отзыва: {errors}')
+
     feedback_form = FeedbackForm()
     return render(request, 'feedbacks/form.html', {'feedback_form' : feedback_form, 
                                                    'errors' : errors})
@@ -144,7 +155,6 @@ def about_employees_view(request):
 @login_required(login_url='/account/login_client')
 def about_employee_detail_view(request, pk=None):
     employee = Employee.objects.all().filter(pk=pk).first()
-    print(employee)
     return render(request, 'toyfactory_app/employee_detail.html', {'employee' : employee})
 
 
@@ -170,9 +180,13 @@ def register_client_view(request):
             client.save()
             client_group = Group.objects.get(name='Client')
             client_group.user_set.add(client)
+
+            logging.error(f'Ошибка регистрации клиента с почтой {client.cleaned_data.get("email")}')
             return HttpResponseRedirect(reverse('login_client'))
         else:
             errors = client_form.errors
+            logging.info(f'Ошибка регистрации клиента: {errors}')
+
     client_form = ClientRegistrationForm()
     return render(request, 'accounts/register_client.html', {'client_form' : client_form,
                                                              'errors' : errors })
@@ -192,11 +206,14 @@ def login_client_view(request):
                                 password=password)
             if user:
                 login(request, user)
+                logging.info(f'Авторизация клиента с почтой {user.email}')
                 return HttpResponseRedirect(reverse('index'))
             else:
                 error = 'Клиент с такими данными не найден.'
+                logging.info(f'Попытка авторизации клиента с несуществующими данными.')
         else:
             errors = client_form.errors
+            logging.info(f'Ошибка регистрации клиента: {errors}')
     client_form = ClientLoginForm()
     return render(request, 'accounts/login_client.html', {'client_form' : client_form,
                                                           'errors' : errors,
@@ -217,10 +234,11 @@ def login_employee_view(request):
                                     password=password)
             if employee:
                 login(request, employee)
-                print('here')
+                logging.info(f'Авторизация сотрудника с почтой {employee.email}')
                 return HttpResponseRedirect(reverse('index'))
             else:
                 error = 'Сотрудник с такими данными не найден.'
+                logging.info(f'Ошибка регистрации сотрудника: {errors}')
         else:
             errors = employee_form.errors
     employee_form = EmployeeLoginForm()
@@ -235,9 +253,11 @@ def update_profile_view(request, pk):
         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
         if profile_form.is_valid():
             profile_form.save()
+            logging.info(f'Обновления профиля пользователем {request.user}')
             return HttpResponseRedirect(reverse('login_client'))
         else:
             errors = profile_form.errors
+            logging.info(f'Попытка сохранения профиля с невалидными полями')
     profile_form = ProfileUpdateForm(instance=request.user)
     return render(request, 'accounts/update_profile.html', {'profile_form' :  profile_form,
                                                             'errors' : errors})
@@ -246,6 +266,7 @@ def update_profile_view(request, pk):
 @login_required(login_url='/account/login_client')
 def logout_view(request):
     logout(request)
+    logging.info(f'Выход из аккаунта пользователем {request.user}')
     return HttpResponseRedirect(reverse('index'))
 
 
@@ -307,9 +328,11 @@ def create_order_view(request, pk):
             order.total_price = order.toy.price * order_form.cleaned_data['toy_count'] * (1 - order_form.cleaned_data['promocodes'][0].discount / 100)
             order.save()
 
+            logging.error(f'Создание заказа клиентом {request.user}')
             return HttpResponseRedirect(reverse('toys_list'))
         else:
             errors = order_form.errors
+            logging.info(f'Попытка создания заказа с невалидными полями.')
     order_form = OrderForm()
     return render(request, 'toy/create_order.html', {'order_form' :  order_form,
                                                      'errors' : errors})
@@ -378,6 +401,8 @@ def statistics_view(request):
 @permission_required("toyfactory_app.add_employee", login_url='/account/login_employee')
 def statistics_price_view(request):
     toys = Toy.objects.all()
+    logging.debug('Статистика цен создана и сохранена.')
+
     return render(request, 'statistics/price_list.html', {'toys' : toys})
 
 
@@ -414,6 +439,8 @@ def statistics_clients_view(request):
     average_age = round(df['Возраст'].mean(), 2)
     max_age = df['Возраст'].max()
     min_age = df['Возраст'].min()
+
+    logging.debug('Статистика клиентов создана и сохранена.')
 
     return render(request, 'statistics/clients_town_list.html', {'average_age' : average_age,
                                                                  'max_age' : max_age,
@@ -467,6 +494,8 @@ def statistics_toy_view(request):
 
     popular_toy = max(order_map, key=order_map.get)
     nonpopular_toy = min(order_map, key=order_map.get)
+
+    logging.debug('Статистика продаж создана и сохранена.')
 
     return render(request, 'statistics/toys_list.html', {'average_price' : average_price,
                                                          'max_price' : max_price,
@@ -545,6 +574,8 @@ def statistics_profit_view(request):
     plt.legend()
     plt.grid(True)
     plt.savefig("media/images/forecast.png")
+    
+    logging.debug('Статистика прибыли создана и сохранена.')
 
     return render(request, 'statistics/profit.html')
 
@@ -552,6 +583,7 @@ def statistics_profit_view(request):
 @permission_required("toyfactory_app.add_employee", login_url='/account/login_employee')
 def statistics_month_view(request):
     toy_types = ToyType.objects.all()
+    logging.debug('Статистика по месяцам создана и сохранена.')
     return render(request, 'statistics/month.html', {'toy_types' : toy_types})
 
 
@@ -581,5 +613,6 @@ def statistics_month_detail_view(request, pk=None):
 
     df_trend = df_trend.groupby('Месяцы').count()
     df_trend.plot(kind='bar').get_figure().savefig('media/images/month_orders.png')
+    logging.debug('Месячная статистика создана и сохранена.')
 
     return render(request, 'statistics/month_detail.html')
