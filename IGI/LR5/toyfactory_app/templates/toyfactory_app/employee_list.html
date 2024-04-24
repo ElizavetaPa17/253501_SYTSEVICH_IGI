@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
     <h1>Сотрудники</h1>
-
     {% if employee_list %}
     <ul>
         {% for employee in employee_list %}
@@ -13,4 +12,5 @@
     {% else %}
         <p>Список сотрудников пуст.</p>
     {% endif %}
+    {% include "pagination.html" with page=employee_list %}
 {% endblock %}

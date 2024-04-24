@@ -174,3 +174,9 @@ class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ('toy_count', 'promocodes')
+
+    def clean_data(self):
+        promocode = self.cleaned_data['promocodes']
+        if promocode.name != 'Активные':
+            raise forms.ValidationError('Выбранный промокод должен быть активным')
+        return promocode

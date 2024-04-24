@@ -19,7 +19,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('birthday', datetime.datetime(2024, 4, 14))
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('role', SUPERUSER)
+        extra_fields['role'] = SUPERUSER
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
         return self.create_user(email, password, **extra_fields)

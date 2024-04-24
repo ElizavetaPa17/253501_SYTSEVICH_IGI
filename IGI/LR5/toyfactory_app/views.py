@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import Permission, Group
+from django.db import IntegrityError
 from .models import *
 from .forms import *
 from .constants import *
@@ -29,11 +30,16 @@ def index(request):
     news_list = News.objects.all()
     news = None
     if news_list:
-        news = news_list[0]
+        news = news_list.last()
 
     # Используем наше API
     cat_fact = None
     dog_image = None
+
+    #clients = Client.objects.all()
+    #for client in clients:
+    #    client.set_password('bz718nqf45')
+    #    client.save()
 
     try:
         res = requests.get("https://catfact.ninja/fact").json()
@@ -100,16 +106,19 @@ def feedbacks_view(request):
 def add_feedback_view(request):
     errors = None
     if request.method == 'POST':
-        feedback_form = FeedbackForm(request.POST)
-        if feedback_form.is_valid():
-            feedback = feedback_form.save(commit=False)
-            feedback.user = request.user
-            feedback.date = datetime.date.today()
-            feedback.save()
-            logging.error(f'Создание отзыва клиентом {request.user}')
-        else:
-            errors = feedback_form.errors
-            logging.info(f'Ошибка добавления отзыва: {errors}')
+        try:
+            feedback_form = FeedbackForm(request.POST)
+            if feedback_form.is_valid():
+                feedback = feedback_form.save(commit=False)
+                feedback.user = request.user
+                feedback.date = datetime.date.today()
+                feedback.save()
+                logging.error(f'Создание отзыва клиентом {request.user}')
+            else:
+                errors = feedback_form.errors
+                logging.info(f'Ошибка добавления отзыва: {errors}')
+        except IntegrityError:
+            errors = 'Вы уже написали свой отзыв.'
 
     feedback_form = FeedbackForm()
     return render(request, 'feedbacks/form.html', {'feedback_form' : feedback_form, 
@@ -178,7 +187,7 @@ def register_client_view(request):
         if client_form.is_valid():
             client = client_form.save(commit=False)
             client.save()
-            client_group = Group.objects.get(name='Client')
+            client_group = Group.objects.get(name='Клиенты')
             client_group.user_set.add(client)
 
             logging.error(f'Ошибка регистрации клиента с почтой {client.cleaned_data.get("email")}')
@@ -413,9 +422,10 @@ def statistics_clients_view(request):
     ages = []
     fl_names = []
     for client in clients:
-        towns.append(client.town)
-        fl_names.append(client.first_name + ' ' + client.last_name)
-        ages.append(datetime.datetime.today().year - client.birthday.year)
+        if client.is_staff == False:
+            towns.append(client.town)
+            fl_names.append(client.first_name + ' ' + client.last_name)
+            ages.append(datetime.datetime.today().year - client.birthday.year)
 
     df = pd.DataFrame({
         'Имя' : fl_names,
@@ -603,6 +613,8 @@ def statistics_month_detail_view(request, pk=None):
         months.append(order.order_date.month)
         count.append(order.toy_count)
 
+    print(count)
+
     trend_dict = dict(zip(months, count))
     trend_dict = dict(sorted(trend_dict.items()))
     # Линейный тренд продаж
@@ -611,7 +623,9 @@ def statistics_month_detail_view(request, pk=None):
         'Продажи' : trend_dict.values()
     })
 
-    df_trend = df_trend.groupby('Месяцы').count()
+    print(df_trend)
+
+    df_trend = df_trend.groupby('Месяцы').max()
     df_trend.plot(kind='bar').get_figure().savefig('media/images/month_orders.png')
     logging.debug('Месячная статистика создана и сохранена.')
 
