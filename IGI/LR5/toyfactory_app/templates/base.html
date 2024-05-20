@@ -4,6 +4,7 @@
         {% block title %}<title>Toy Factory</title>{% endblock %}
     </head>
     <body>
+        <p>{% now "F j Y"%}</p>
         <div id="navigation">
             <li><a href="{% url 'index' %}">Домашняя страница</a></li>
             <li><a href="{% url 'toys_list' %}">Игрушки</a></li>

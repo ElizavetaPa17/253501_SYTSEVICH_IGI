@@ -190,7 +190,7 @@ def register_client_view(request):
             client_group = Group.objects.get(name='Клиенты')
             client_group.user_set.add(client)
 
-            logging.error(f'Ошибка регистрации клиента с почтой {client.cleaned_data.get("email")}')
+            logging.error(f'Ошибка регистрации клиента с почтой {client_form.cleaned_data.get("email")}')
             return HttpResponseRedirect(reverse('login_client'))
         else:
             errors = client_form.errors
@@ -213,7 +213,7 @@ def login_client_view(request):
             user = authenticate(first_name=first_name, 
                                 last_name=last_name,
                                 password=password)
-            if user:
+            if user and user.role == CLIENT:
                 login(request, user)
                 logging.info(f'Авторизация клиента с почтой {user.email}')
                 return HttpResponseRedirect(reverse('index'))
@@ -241,7 +241,7 @@ def login_employee_view(request):
             employee = authenticate(first_name=first_name,
                                     last_name=last_name, 
                                     password=password)
-            if employee:
+            if employee and employee.role == EMPLOYEE:
                 login(request, employee)
                 logging.info(f'Авторизация сотрудника с почтой {employee.email}')
                 return HttpResponseRedirect(reverse('index'))
@@ -334,7 +334,7 @@ def create_order_view(request, pk):
             order.finish_date = datetime.date.today() + datetime.timedelta(days=3)
             order.client = get_object_or_404(Client, pk=request.user.pk)
             order.toy = get_object_or_404(Toy, pk=pk)
-            order.total_price = order.toy.price * order_form.cleaned_data['toy_count'] * (1 - order_form.cleaned_data['promocodes'][0].discount / 100)
+            order.total_price = order.toy.price * order_form.cleaned_data['toy_count'] * (1 - order_form.cleaned_data['promocodes'].discount / 100)
             order.save()
 
             logging.error(f'Создание заказа клиентом {request.user}')
