@@ -10,6 +10,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import Permission, Group
 from django.db import IntegrityError
+from django.utils import timezone
+from django.utils.timezone import get_current_timezone
 from .models import *
 from .forms import *
 from .constants import *
@@ -51,7 +53,12 @@ def index(request):
     except Exception as ex:
         logging.error(traceback.format_exc())
 
-    return render(request, 'index.html', {'news' : news,
+    localtime = timezone.localtime(timezone.now()).time()
+    localtimezone = get_current_timezone()
+
+    return render(request, 'index.html', {'local_time': localtime,
+                                          'local_timezone': localtimezone,
+                                          'news' : news,
                                           'cat_fact' : cat_fact,
                                           'dog_image' : dog_image})
 

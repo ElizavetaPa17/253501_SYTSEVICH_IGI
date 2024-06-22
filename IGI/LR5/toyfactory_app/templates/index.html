@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
+    <p>Текущее время: {{ local_time }}</p>
+    <p>Текущая зона: {{ local_timezone }}</p>
+    <input type="date">
     {% if news %}
         <h1>Последние новости</h1>
         <p>{{ news.title }}</p>

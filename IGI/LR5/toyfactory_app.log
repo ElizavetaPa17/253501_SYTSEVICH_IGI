@@ -6229,3 +6229,79 @@ requests.exceptions.ConnectionError: ('Connection aborted.', RemoteDisconnected(
 "GET /media/images/forecast.png HTTP/1.1" 200 53633
 "GET /media/images/yearly_profit.png HTTP/1.1" 200 14395
 "GET /media/images/yearly_profit.png HTTP/1.1" 200 14395
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 1775
+"GET / HTTP/1.1" 200 1775
+"GET /media/images/support_JHQN9KP.jpg HTTP/1.1" 200 30160
+"GET /media/images/support_JHQN9KP.jpg HTTP/1.1" 200 30160
+Not Found: /favicon.ico
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 7019
+"GET /favicon.ico HTTP/1.1" 404 7019
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 1875
+"GET / HTTP/1.1" 200 1875
+Not Found: /favicon.ico
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 7019
+"GET /favicon.ico HTTP/1.1" 404 7019
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 1584
+"GET / HTTP/1.1" 200 1584
+"GET / HTTP/1.1" 200 1711
+"GET / HTTP/1.1" 200 1711
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 1723
+"GET / HTTP/1.1" 200 1723
+"GET / HTTP/1.1" 200 1611
+"GET / HTTP/1.1" 200 1611
+"GET / HTTP/1.1" 200 1824
+"GET / HTTP/1.1" 200 1824
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+/home/elizaveta/Documents/study/igi/253501_SYTSEVICH_23/IGI/LR5/toyfactory_app/views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 2032
+"GET / HTTP/1.1" 200 2032
+Not Found: /favicon.ico
+Not Found: /favicon.ico
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 1890
+"GET / HTTP/1.1" 200 1890
+"GET / HTTP/1.1" 200 1773
+"GET / HTTP/1.1" 200 1773
+"GET / HTTP/1.1" 200 1757
+"GET / HTTP/1.1" 200 1757
